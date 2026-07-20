@@ -188,7 +188,7 @@ class OperationsModel extends Model
         // + frais
         $sortie = $this->db
             ->table("operations")
-            ->select("SUM(montant + frais) AS total")
+            ->select("SUM(montant) AS total")
             ->groupStart()
             ->where("client_id", $clientId)
             ->whereIn("type_operation_id", [2, 3])
