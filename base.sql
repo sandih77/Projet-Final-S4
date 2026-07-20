@@ -50,3 +50,8 @@ CREATE TABLE operations (
     FOREIGN KEY(client_destinataire) REFERENCES clients(id),
     FOREIGN KEY(operateur_id) REFERENCES operateur(id)
 );
+
+-- Données de test
+INSERT INTO clients (nom, telephone, code_secret, solde)
+VALUES
+    ('Sandih', '0388784291', 1234, 1000);
