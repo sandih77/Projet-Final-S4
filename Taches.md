@@ -17,12 +17,21 @@
             - téléphone
             - code secret
             - solde
-      * [ ] HTML
-        * [ ] input telephone
-        * [ ] input code secret
+      * [ ] Modèle
+        * [ ] ClientModel
+      * [X] HTML
+        * [X] input telephone
+        * [X] input code secret
       * [ ] CSS / Bootstrap
       * [ ] Intégration php
-        * [ ] Vérification des données
+        * [ ] Règle d'authentification
+          * [ ] vérification du numéro de téléphone et du code secret
+        * [ ] Validation du formulaire
+          * [X] Code serveur
+            * [X] Format de numéro de téléphone à Madagascar
+            * [X] Code secret 4 chiffres
+          * [ ] Ajax (javascript)
+          * [X] HTML
     * [ ] Operation :
       * [ ] Solde
       * [ ] Depot
