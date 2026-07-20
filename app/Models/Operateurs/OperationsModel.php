@@ -4,6 +4,7 @@ namespace App\Models\Operateurs;
 
 use App\Models\Operateurs\TypesOperationModel;
 use App\Models\Operateurs\OperateursModel;
+use App\Models\Clients\ClientModel;
 
 use CodeIgniter\Model;
 
@@ -20,67 +21,59 @@ class OperationsModel extends Model
         "date_operation",
         "operateur_id",
         "frais",
+        "commission",
     ];
 
     public function getGainTotal($operateur_id = null)
     {
-        $totalFrais = $this->select('SUM(frais) as total')
+        $result = $this->select('SUM(frais) as total')
             ->where('operateur_id', $operateur_id)
-            ->first()['total'] ?? 0;
+            ->first();
 
-        $gainsAutres = $this->getGainAutreOperateur($operateur_id);
-        $totalCommissionsAutres = array_sum($gainsAutres);
-
-        return $totalFrais - $totalCommissionsAutres;
+        return $result['total'] ?? 0;
     }
 
     public function getGainAutreOperateur($operateur_id)
     {
         $listOperations  = $this->findAll();
-        $operateursModel = new \App\Models\Operateurs\OperateursModel();
-        $clientModel     = new \App\Models\Clients\ClientModel();
+        $operateursModel = new OperateursModel();
+        $clientModel     = new ClientModel();
 
         $listGainAutreOperateur = [];
 
         foreach ($listOperations as $operation) {
-
             if (!empty($operation['client_destinataire'])) {
-
                 $destinataire = $clientModel->find($operation['client_destinataire']);
 
                 if ($destinataire && !empty($destinataire->telephone)) {
-
                     $operateur = $operateursModel->getOperateurByTelephone($destinataire->telephone);
 
                     if ($operateur) {
-                        $operateurId = is_array($operateur) ? $operateur['id'] : $operateur->id;
+                        $operateurId  = is_array($operateur) ? $operateur['id'] : $operateur->id;
+                        $operateurNom = is_array($operateur) ? $operateur['nom'] : $operateur->nom;
 
                         if ($operateurId != $operateur_id) {
-
-                            $pourcentage = is_array($operateur)
-                                ? ($operateur['commission'] ?? 0)
-                                : ($operateur->commission ?? 0);
-
-                            $commission = $operation['frais'] * ($pourcentage / 100);
-
                             if (!isset($listGainAutreOperateur[$operateurId])) {
-                                $listGainAutreOperateur[$operateurId] = 0;
+                                $listGainAutreOperateur[$operateurId] = [
+                                    'nom'     => $operateurNom,
+                                    'montant' => 0
+                                ];
                             }
-                            $listGainAutreOperateur[$operateurId] += $commission;
+                            $listGainAutreOperateur[$operateurId]['montant'] += ($operation['commission'] ?? 0);
                         }
                     }
                 }
             }
         }
 
-        return $listGainAutreOperateur;
+        return array_values($listGainAutreOperateur);
     }
 
     public function getMontantsAEnvoyerParOperateur($monOperateurId)
     {
         $listOperations  = $this->findAll();
-        $operateursModel = new \App\Models\Operateurs\OperateursModel();
-        $clientModel     = new \App\Models\Clients\ClientModel();
+        $operateursModel = new OperateursModel();
+        $clientModel     = new ClientModel();
 
         $situation = [];
 
@@ -95,12 +88,8 @@ class OperationsModel extends Model
                         $operateurId = is_array($operateur) ? $operateur['id'] : $operateur->id;
 
                         if ($operateurId != $monOperateurId) {
-                            $pourcentage = is_array($operateur) 
-                                ? ($operateur['commission'] ?? 0) 
-                                : ($operateur->commission ?? 0);
-
                             $montantTransfert = $operation['montant'];
-                            $commission       = $operation['frais'] * ($pourcentage / 100);
+                            $commission = $operation['commission'] ?? 0;
 
                             if (!isset($situation[$operateurId])) {
                                 $situation[$operateurId] = [
@@ -122,40 +111,6 @@ class OperationsModel extends Model
 
         return $situation;
     }
-
-
-
-    // public function getGainParOperateur($operateur_id = null)
-    // {
-    //     $builder = $this->select('types_operation.nom as type_nom, 
-    //                               SUM(operations.frais) as total_gains, 
-    //                               COUNT(operations.id) as nombre_operations')
-    //         ->join('types_operation', 'types_operation.id = operations.type_operation_id')
-    //         ->groupBy('operations.type_operation_id');
-
-    //     if ($operateur_id !== null) {
-    //         $builder->where('operations.operateur_id', $operateur_id);
-    //     }
-
-    //     return $builder->findAll();
-    // }
-
-    // public function getGainParTypeOperation($type_operation_id = null)
-    // {
-    //     $builder = $this->select('operateur.nom as operateur_nom, 
-    //                               SUM(operations.frais) as total_gains, 
-    //                               COUNT(operations.id) as nombre_operations')
-    //         ->join('operateur', 'operateur.id = operations.operateur_id')
-    //         ->groupBy('operations.operateur_id');
-
-    //     if ($type_operation_id !== null) {
-    //         $builder->where('operations.type_operation_id', $type_operation_id);
-    //     }
-
-    //     return $builder->findAll();
-    // }
-
-
 
 
 
@@ -185,10 +140,10 @@ class OperationsModel extends Model
         // Argent sorti :
         // - retrait
         // - transfert envoyé
-        // + frais
+        // + frais (frais du barème) + commission (frais inter-opérateur)
         $sortie = $this->db
             ->table("operations")
-            ->select("SUM(montant) AS total")
+            ->select("SUM(montant + frais + commission) AS total")
             ->groupStart()
             ->where("client_id", $clientId)
             ->whereIn("type_operation_id", [2, 3])
@@ -242,7 +197,7 @@ class OperationsModel extends Model
         return $this->db
             ->table("operations")
             ->select(
-                "operations.id, operations.montant, operations.frais, " .
+                "operations.id, operations.montant, operations.frais, operations.commission, " .
                     "operations.date_operation, operations.client_id, operations.client_destinataire, " .
                     "types_operation.nom AS type_operation_nom, " .
                     "operateur.nom AS operateur_nom, " .
@@ -283,22 +238,22 @@ class OperationsModel extends Model
 
     public function getSoldeClientSansFrais($clientId)
     {
-        
+
         $recu = $this->db
             ->table("operations")
             ->selectSum("montant", "total")
             ->groupStart()
-                ->where("client_id", $clientId)
-                ->where("type_operation_id", 1)
+            ->where("client_id", $clientId)
+            ->where("type_operation_id", 1)
             ->groupEnd()
             ->orGroupStart()
-                ->where("client_destinataire", $clientId)
-                ->where("type_operation_id", 3)
+            ->where("client_destinataire", $clientId)
+            ->where("type_operation_id", 3)
             ->groupEnd()
             ->get()
             ->getRow();
 
-            
+
         $sortie = $this->db
             ->table("operations")
             ->selectSum("montant", "total")
@@ -312,6 +267,4 @@ class OperationsModel extends Model
 
         return $totalRecu - $totalSortie;
     }
-
-    
 }

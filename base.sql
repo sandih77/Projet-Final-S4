@@ -43,6 +43,7 @@ CREATE TABLE operations (
     client_destinataire INTEGER,
     montant REAL,
     frais REAL,
+    commission REAL NOT NULL DEFAULT 0,
     date_operation DATETIME DEFAULT CURRENT_TIMESTAMP,
     operateur_id INTEGER,
     FOREIGN KEY(client_id) REFERENCES clients(id),

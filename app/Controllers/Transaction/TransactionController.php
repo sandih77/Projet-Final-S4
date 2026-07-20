@@ -101,7 +101,9 @@ class TransactionController extends BaseController
             case "transfert":
                 $destinataires = $this->request->getPost("destinataire");
 
-                $inclureFrais = $this->request->getPost("inclure_transaction");
+                $inclureFraisRetrait = $this->request->getPost(
+                    "inclure_transaction",
+                );
 
                 if (
                     !$this->faireTransfert(
@@ -110,7 +112,7 @@ class TransactionController extends BaseController
                         $montant,
                         $operation,
                         $operateur,
-                        $inclureFrais,
+                        $inclureFraisRetrait,
                     )
                 ) {
                     return redirect()
@@ -148,6 +150,7 @@ class TransactionController extends BaseController
     {
         $solde = $this->operationModel->getSoldeClient($client->id);
 
+        // Un retrait autonome facture toujours son frais de barème.
         $bareme = $this->baremesModel->getFrais(
             $operation["id"],
             $montant,
@@ -183,7 +186,7 @@ class TransactionController extends BaseController
         $montant,
         $operation,
         $operateur,
-        $inclureFrais,
+        $inclureFraisRetrait = false,
     ) {
         if (!is_array($destinataires) || count($destinataires) == 0) {
             session()->setFlashdata("error", "Aucun destinataire");
@@ -248,31 +251,54 @@ class TransactionController extends BaseController
 
         $montantParDestinataire = floor($montant / $nombreDestinataires);
 
-        $commission = 0;
-        $frais = 0;
+        $memeOperateur = $operateur["id"] == $operateurDestinataire["id"];
 
-        if ($operateur["id"] != $operateurDestinataire["id"]) {
-            $commission =
-                ($montantParDestinataire *
-                    $operateurDestinataire["commission"]) /
-                100;
+        // Frais de transfert : TOUJOURS obligatoire, calculé via le barème
+        // "transfert" de MON opérateur. C'est ce montant qui constitue le
+        // gain de mon opérateur.
+        $baremeTransfert = $this->baremesModel->getFrais(
+            $operation["id"],
+            $montantParDestinataire,
+            $operateur["id"],
+        );
 
-            if ($inclureFrais) {
-                $frais = $commission * $nombreDestinataires;
-            }
-        } else {
-            $bareme = $this->baremesModel->getFrais(
-                $operation["id"],
+        $fraisTransfert = $baremeTransfert ? (float) $baremeTransfert->frais : 0;
+
+        // Frais de retrait : OPTIONNEL, mais UNIQUEMENT pour un transfert
+        // vers le MÊME opérateur. Vers un autre opérateur, seul le frais de
+        // transfert (+ la commission) s'applique, il n'y a pas de frais de
+        // retrait à ajouter.
+        $fraisRetrait = 0;
+
+        if ($memeOperateur && $inclureFraisRetrait) {
+            $baremeRetrait = $this->baremesModel->getFrais(
+                2, // type d'opération "retrait"
                 $montantParDestinataire,
                 $operateur["id"],
             );
 
-            if ($inclureFrais) {
-                $frais = ($bareme ? $bareme->frais : 0) * $nombreDestinataires;
-            }
+            $fraisRetrait = $baremeRetrait ? (float) $baremeRetrait->frais : 0;
         }
 
-        $total = $montant + $frais;
+        $fraisParDestinataire = $fraisTransfert + $fraisRetrait;
+
+        // Commission inter-opérateurs : également obligatoire dès que le
+        // destinataire est chez un AUTRE opérateur. Ce montant constitue le
+        // gain de l'autre opérateur (et non le mien).
+        $commissionParDestinataire = 0;
+
+        if (!$memeOperateur) {
+            $commissionParDestinataire =
+                ($montantParDestinataire *
+                    $operateurDestinataire["commission"]) /
+                100;
+        }
+
+        $fraisTotal =
+            ($fraisParDestinataire + $commissionParDestinataire) *
+            $nombreDestinataires;
+
+        $total = $montant + $fraisTotal;
 
         $solde = $this->operationModel->getSoldeClient($client->id);
 
@@ -282,9 +308,12 @@ class TransactionController extends BaseController
             return false;
         }
 
-        $montantEnvoyeParDestinataire = floor($total / $nombreDestinataires);
-
         foreach ($clientsDestinataires as $clientDestinataire) {
+            // Une seule ligne par transfert : le destinataire reçoit le
+            // montant, le frais de base revient à mon opérateur, et la
+            // commission (le cas échéant) est due à l'opérateur du
+            // destinataire. Les deux sont stockés séparément sur la même
+            // opération pour garder un historique clair.
             $this->operationModel->insert([
                 "client_id" => $client->id,
 
@@ -292,9 +321,11 @@ class TransactionController extends BaseController
 
                 "client_destinataire" => $clientDestinataire->id,
 
-                "montant" => $montantEnvoyeParDestinataire,
+                "montant" => $montantParDestinataire,
 
-                "frais" => $frais / $nombreDestinataires,
+                "frais" => $fraisParDestinataire,
+
+                "commission" => $commissionParDestinataire,
 
                 "operateur_id" => $operateur["id"],
             ]);
@@ -328,7 +359,7 @@ class TransactionController extends BaseController
         );
 
         return $this->response->setJSON([
-            "different" => $operateurSource["id"] == $operateurDest["id"],
+            "different" => $operateurSource["id"] != $operateurDest["id"],
         ]);
     }
 }
