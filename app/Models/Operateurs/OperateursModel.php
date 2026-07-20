@@ -9,7 +9,8 @@ class OperateursModel extends Model
     protected $table = 'operateur';
     protected $primaryKey = 'id';
     protected $allowedFields = [
-        'nom'
+        'nom',
+        'commission',
     ];
 
     public function getOperateurByTelephone($telephone)

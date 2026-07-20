@@ -103,10 +103,28 @@
     * [ ] Historique
 * [ ] V2
   * [ ] Operateur : Finiavana - Sandih
-    * [X] Configuration des prefixes des autres operateur - Finiavana
-    * [ ] Configuration % commition vers les autres operateurs - Sandih
-    * [ ] Separation des gain dans le dashboard - Finiavana
-    * [ ] Situation des montant a envoyer aux autres operateur - Finiavana
+    * [X] Configuration des prefixes des autres operateur - Finiavana (deja present dans v1) : 1 min
+    * [ ] Configuration % commission vers les autres operateurs - Sandih
+    * [X] Separation des gain dans le dashboard - Finiavana
+      * [X] Models :
+        * [X] OperationModel
+          * [X] Fonctions :
+            * [X] getGainTotal : 3 min
+            * [X] getGainAutreOperateur : 20 min
+      * [X] Controller :
+        * [X] GainController : 5 min
+        * [X] OperateursController : 5 min
+      * [X] Vues :
+        * [X] dashboard : 5 min
+    * [X] Situation des montant a envoyer aux autres operateur - Finiavana
+      * [X] Models :
+        * [X] OperationModel
+          * [X] Fonctions :
+            * [X] getMontantsAEnvoyerParOperateur : 20 min
+      * [X] Controller :
+        * [X] OperateursController : 5 min
+      * [X] Vues :
+        * [X] dashboard : 5 min
   * [ ] Client
     * [ ] Fonctionnalite : ajouter frais de retrait(meme operateur) - Sandih
     * [ ] Envoye multiple

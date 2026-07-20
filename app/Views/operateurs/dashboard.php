@@ -67,72 +67,48 @@
 
 <div class="page-header" style="margin-top:8px;">
     <div>
-        <h2 style="margin-bottom:0;">Répartition des gains</h2>
-        <p class="page-description">Détail des frais perçus par type d'opération et par opérateur.</p>
+        <h2 style="margin-bottom:0;">Situation gain via les différents frais</h2>
+        <p class="page-description">Ventilation des commissions entre notre réseau et les autres opérateurs.</p>
     </div>
 </div>
 
 <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px; margin-bottom:24px;">
     <div class="card">
         <div class="card-header">
-            <h3><i class="bi bi-diagram-3"></i> Gains par type d'opération</h3>
+            <h3><i class="bi bi-wallet2"></i> Notre Opérateur</h3>
         </div>
-        <?php if (empty($gains_par_type)) : ?>
-            <div class="empty-state">
-                <i class="bi bi-bar-chart"></i>
-                <strong>Aucune donnée</strong>
-                <span>Aucun gain enregistré pour le moment.</span>
+        <div style="padding: 20px; text-align: center;">
+            <div class="stat-value text-success" style="font-size: 1.8rem; font-weight: bold; margin-bottom: 5px;">
+                <?= number_format((float) ($total_gains ?? 0), 0, ',', ' ') ?> Ar
             </div>
-        <?php else : ?>
-            <div class="table-wrap">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Type d'opération</th>
-                            <th>Opérations</th>
-                            <th>Gains</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($gains_par_type as $gain) : ?>
-                            <tr>
-                                <td><span class="pill"><?= esc($gain['type_nom']) ?></span></td>
-                                <td><?= (int) $gain['nombre_operations'] ?></td>
-                                <td class="money positive"><?= number_format((float) $gain['total_gains'], 0, ',', ' ') ?> Ar</td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
+            <p class="page-description" style="margin: 0;">Gains totaux générés par nos opérations</p>
+        </div>
     </div>
 
     <div class="card">
         <div class="card-header">
-            <h3><i class="bi bi-building"></i> Gains par opérateur</h3>
+            <h3><i class="bi bi-arrow-right-left"></i> Commissions aux autres opérateurs</h3>
         </div>
-        <?php if (empty($gains_par_operateur)) : ?>
+        <?php if (empty($gains_autres_operateurs_detail)) : ?>
             <div class="empty-state">
                 <i class="bi bi-bar-chart"></i>
-                <strong>Aucune donnée</strong>
-                <span>Aucun gain enregistré pour le moment.</span>
+                <strong>Aucune commission</strong>
+                <span>Aucune commission à reverser vers un autre opérateur.</span>
             </div>
         <?php else : ?>
             <div class="table-wrap">
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>Opérateur</th>
-                            <th>Opérations</th>
-                            <th>Gains</th>
+                            <th>Opérateur Destinataire</th>
+                            <th>Commission due</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($gains_par_operateur as $gain) : ?>
+                        <?php foreach ($gains_autres_operateurs_detail as $item) : ?>
                             <tr>
-                                <td><span class="pill pill-muted"><?= esc($gain['operateur_nom']) ?></span></td>
-                                <td><?= (int) $gain['nombre_operations'] ?></td>
-                                <td class="money positive"><?= number_format((float) $gain['total_gains'], 0, ',', ' ') ?> Ar</td>
+                                <td><span class="pill pill-muted"><?= esc($item['nom']) ?></span></td>
+                                <td class="money positive"><?= number_format((float) $item['montant'], 0, ',', ' ') ?> Ar</td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -140,6 +116,46 @@
             </div>
         <?php endif; ?>
     </div>
+</div>
+
+<div class="page-header" style="margin-top:24px;">
+    <div>
+        <h2 style="margin-bottom:0;">Situation des montants à envoyer à chaque opérateur</h2>
+        <p class="page-description">Récapitulatif des transferts et commissions à régler aux réseaux partenaires.</p>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:24px;">
+    <?php if (empty($montants_a_envoyer)) : ?>
+        <div class="empty-state">
+            <i class="bi bi-arrow-up-right-circle"></i>
+            <strong>Aucun montant à reverser</strong>
+            <span>Aucune transaction inter-opérateur enregistrée.</span>
+        </div>
+    <?php else : ?>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Opérateur Partenaire</th>
+                        <th>Total Transferts</th>
+                        <th>Commissions dues</th>
+                        <th>Total à envoyer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($montants_a_envoyer as $row) : ?>
+                        <tr>
+                            <td><span class="pill pill-muted"><?= esc($row['nom']) ?></span></td>
+                            <td class="money"><?= number_format((float) $row['total_transferts'], 0, ',', ' ') ?> Ar</td>
+                            <td class="money positive"><?= number_format((float) $row['total_commissions'], 0, ',', ' ') ?> Ar</td>
+                            <td class="money"><strong><?= number_format((float) $row['total_a_envoyer'], 0, ',', ' ') ?> Ar</strong></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
 </div>
 
 <div class="card-header" style="padding-left:0; border-bottom:none;">
