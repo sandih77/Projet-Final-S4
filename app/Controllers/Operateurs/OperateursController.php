@@ -5,12 +5,16 @@ namespace App\Controllers\Operateurs;
 use App\Controllers\BaseController;
 
 use App\Models\Operateurs\OperateursModel;
+use App\Controllers\Operateurs\GainController;
 
 class OperateursController extends BaseController
 {
     public function dashboard()
     {
-        return view('operateurs/dashboard');
+        $gainController = new GainController();
+        $data = $gainController->getGain();
+        
+        return view('operateurs/dashboard', $data);
     }
 
     public function index()
