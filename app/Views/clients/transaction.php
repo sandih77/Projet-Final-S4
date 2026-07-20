@@ -1,8 +1,8 @@
-<?= $this->extend('layouts/main') ?>
+<?= $this->extend("layouts/main") ?>
 
-<?= $this->section('title') ?>Transaction<?= $this->endSection() ?>
+<?= $this->section("title") ?>Transaction<?= $this->endSection() ?>
 
-<?= $this->section('content') ?>
+<?= $this->section("content") ?>
 
 <a href="<?= site_url("clients/dashboard") ?>" class="back-link">
     <i class="bi bi-arrow-left"></i>
@@ -16,20 +16,22 @@
     </div>
 </div>
 
-<?= $this->include('partials/alerts') ?>
+<?= $this->include("partials/alerts") ?>
 
 <div class="card card-form">
     <div class="card-body">
-        <form action="<?= site_url("clients/transaction/validate") ?>" method="post" class="form-grid">
+        <form action="<?= site_url(
+            "clients/transaction/validate",
+        ) ?>" method="post" class="form-grid">
 
             <div class="form-group">
                 <label for="type_operation">Type d'opération</label>
                 <select id="type_operation" name="type_operation" required>
                     <option value="">-- Sélectionnez un type --</option>
 
-                    <?php foreach ($typesOperations as $typeOperation) : ?>
-                        <option value="<?= $typeOperation['id'] ?>">
-                            <?= esc($typeOperation['nom']) ?>
+                    <?php foreach ($typesOperations as $typeOperation): ?>
+                        <option value="<?= $typeOperation["id"] ?>">
+                            <?= esc($typeOperation["nom"]) ?>
                         </option>
                     <?php endforeach; ?>
 
@@ -44,6 +46,8 @@
                     name="destinataire"
                     placeholder="0341234567"
                     pattern="^(032|033|034|037|038)[0-9]{7}$"
+                    minlength="10"
+                    maxlength="10"
                 >
             </div>
 
@@ -57,6 +61,31 @@
                     required
                 >
             </div>
+
+            <div class="form-group" id="frais_div" style="display:none;">
+                <label>Inclure les frais de retrait ?</label>
+
+                <div class="radio-group">
+                    <label>
+                        <input
+                            type="radio"
+                            name="inclure_transaction"
+                            value="1"
+                            checked
+                        >
+                        Oui
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="inclure_transaction"
+                            value="0"
+                        >
+                        Non
+                    </label>
+                </div>
+            </div>
+
 
             <div class="form-group">
                 <label for="code_secret">Code secret</label>
@@ -77,7 +106,9 @@
                     <i class="bi bi-check2-circle"></i>
                     Valider la transaction
                 </button>
-                <a href="<?= site_url("clients/dashboard") ?>" class="btn btn-secondary">
+                <a href="<?= site_url(
+                    "clients/dashboard",
+                ) ?>" class="btn btn-secondary">
                     Annuler
                 </a>
             </div>
@@ -87,22 +118,55 @@
 </div>
 
 <script>
-    const typeOperation = document.getElementById("type_operation");
-    const destinataireDiv = document.getElementById("destinataire_div");
-    const destinataireInput = document.getElementById("destinataire");
+const typeOperation = document.getElementById("type_operation");
+const destinataireDiv = document.getElementById("destinataire_div");
+const destinataireInput = document.getElementById("destinataire");
+const fraisDiv = document.getElementById("frais_div");
 
-    typeOperation.addEventListener("change", function () {
-        if (this.value == "3") {
-            destinataireDiv.style.display = "block";
-            destinataireInput.required = true;
+typeOperation.addEventListener("change", function () {
+    const isTransfert = this.value === "3";
 
+    destinataireDiv.style.display = isTransfert ? "block" : "none";
+    destinataireInput.required = isTransfert;
+
+    if (!isTransfert) {
+        destinataireInput.value = "";
+        fraisDiv.style.display = "none";
+    }
+});
+
+destinataireInput.addEventListener("input", async function () {
+    if (typeOperation.value !== "3" || this.value.length !== 10) {
+        fraisDiv.style.display = "none";
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append("telephone", this.value);
+
+        const response = await fetch(
+            "<?= site_url('clients/transaction/verifier-operateur') ?>",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (data.different) {
+            fraisDiv.style.display = "block";
         } else {
-            destinataireDiv.style.display = "none";
-            destinataireInput.required = false;
-            destinataireInput.value = "";
+            fraisDiv.style.display = "none";
         }
 
-    });
+    } catch (error) {
+        console.error(error);
+        fraisDiv.style.display = "none";
+    }
+});
+
 </script>
 
 <?= $this->endSection() ?>

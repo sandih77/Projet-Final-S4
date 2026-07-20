@@ -20,10 +20,10 @@ class OperateursController extends BaseController
 
         $gainController = new GainController();
         $stats = [
-            'operateurs' => (new OperateursModel())->countAllResults(),
-            'prefixes' => (new PrefixesModel())->countAllResults(),
-            'types_operation' => (new TypesOperationModel())->countAllResults(),
-            'baremes' => (new BaremesModel())->countAllResults(),
+            "operateurs" => new OperateursModel()->countAllResults(),
+            "prefixes" => new PrefixesModel()->countAllResults(),
+            "types_operation" => new TypesOperationModel()->countAllResults(),
+            "baremes" => new BaremesModel()->countAllResults(),
         ];
 
         $situationClients = $this->getSituationComptesClients();
@@ -46,15 +46,15 @@ class OperateursController extends BaseController
         $operateurs = $operateurModel->findAll();
 
         $data = [
-            'operateurs' => $operateurs
+            "operateurs" => $operateurs,
         ];
 
-        return view('operateurs/operateurs/list', $data);
+        return view("operateurs/operateurs/list", $data);
     }
 
     public function create()
     {
-        return view('operateurs/operateurs/form');
+        return view("operateurs/operateurs/form");
     }
 
     public function insert()
@@ -62,19 +62,19 @@ class OperateursController extends BaseController
         $operateurModel = new OperateursModel();
 
         $data = [
-            'nom' => $this->request->getPost('nom')
+            "nom" => $this->request->getPost("nom"),
         ];
 
         $operateurModel->insert($data);
 
-        return redirect()->to('/operateurs/operateurs');
+        return redirect()->to("/operateurs/operateurs");
     }
 
     public function getSituationClient() {}
 
     private function getSituationComptesClients(): array
     {
-        $clientModel     = new ClientModel();
+        $clientModel = new ClientModel();
         $operationsModel = new OperationsModel();
 
         $clients = $clientModel->findAll();
@@ -87,8 +87,8 @@ class OperateursController extends BaseController
         }
 
         return [
-            'clients'             => $clients,
-            'total_solde_clients' => $totalSoldeGlobal
+            "clients" => $clients,
+            "total_solde_clients" => $totalSoldeGlobal,
         ];
     }
 
