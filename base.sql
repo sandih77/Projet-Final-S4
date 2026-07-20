@@ -58,10 +58,37 @@ VALUES
 INSERT INTO clients (nom, telephone, code_secret)
 VALUES
     ('Test', '0343434434', 1234);
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Test2', '0341111111', 1234);
+
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Airtel2', '0332222222', 1234);
 
 INSERT INTO clients (nom, telephone, code_secret)
 VALUES
     ('Orange', '0322222222', 1234);
+
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Orange1', '0321111111', 1234);
+
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Orange2', '0323333333', 1234);
+
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Airtel', '0333333333', 1234);
+
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Airtel1', '0331111111', 1234);
+
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Airtel2', '0332222222', 1234);
 
 INSERT INTO types_operation (nom)
 VALUES
