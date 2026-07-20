@@ -102,6 +102,7 @@ class TransactionController extends BaseController
                 $telephoneDestinataire = $this->request->getPost(
                     "destinataire",
                 );
+                $inclureFrais = $this->request->getPost("inclure_transaction");
 
                 if (
                     !$this->faireTransfert(
@@ -110,6 +111,7 @@ class TransactionController extends BaseController
                         $montant,
                         $operation,
                         $operateur,
+                        $inclureFrais,
                     )
                 ) {
                     return redirect()
@@ -182,6 +184,7 @@ class TransactionController extends BaseController
         $montant,
         $operation,
         $operateur,
+        $inclureFrais,
     ) {
         $clientDestinataire = $this->clientModel->getClientByTelephone(
             $telephoneDestinataire,
@@ -204,7 +207,8 @@ class TransactionController extends BaseController
         $commission = 0;
 
         if ($operateur["id"] != $operateurDestinataire["id"]) {
-            $commission = ($montant * $operateurDestinataire["commission"]) / 100;
+            $commission =
+                ($montant * $operateurDestinataire["commission"]) / 100;
         }
 
         $solde = $this->operationModel->getSoldeClient($client->id);
@@ -222,13 +226,15 @@ class TransactionController extends BaseController
                 $operateur["id"],
             );
 
-            $frais = $bareme ? $bareme->frais : 0;
-        } else {
-            $frais = $commission;
+            if ($inclureFrais) {
+                $frais = $bareme ? $bareme->frais : 0;
+            } else {
+                $frais = $commission;
+            }
         }
 
-        $montant = $montant + $commission;
-        $total = $montant + $frais;
+        $montant = $montant + $frais;
+        $total = $montant;
 
         if ($solde < $total) {
             session()->setFlashdata("error", "Solde insuffisant");
@@ -242,6 +248,35 @@ class TransactionController extends BaseController
             "montant" => $montant,
             "frais" => $frais,
             "operateur_id" => $operateur["id"],
+        ]);
+    }
+
+    public function verifierOperateur()
+    {
+        $telephone = $this->request->getPost("telephone");
+
+        $clientSession = session()->get("client");
+        $client = $this->clientModel->find($clientSession["id"]);
+
+        $operateurSource = $this->operateursModel->getOperateurByTelephone(
+            $client->telephone,
+        );
+
+        $clientDest = $this->clientModel->getClientByTelephone($telephone);
+
+        if (!$clientDest) {
+            return $this->response->setJSON([
+                "different" => false,
+                "error" => "Destinataire introuvable",
+            ]);
+        }
+
+        $operateurDest = $this->operateursModel->getOperateurByTelephone(
+            $clientDest->telephone,
+        );
+
+        return $this->response->setJSON([
+            "different" => $operateurSource["id"] != $operateurDest["id"],
         ]);
     }
 }
