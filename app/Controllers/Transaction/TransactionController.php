@@ -205,21 +205,17 @@ class TransactionController extends BaseController
         }
 
         $commission = 0;
+        $frais = 0;
 
+        // opérateurs différents => commission
         if ($operateur["id"] != $operateurDestinataire["id"]) {
             $commission =
                 ($montant * $operateurDestinataire["commission"]) / 100;
-        }
 
-        $solde = $this->operationModel->getSoldeClient($client->id);
-
-        $bareme = $this->baremesModel->getFrais(
-            $operation["id"],
-            $montant,
-            $operateur["id"],
-        );
-
-        if ($operateur["id"] == $operateurDestinataire["id"]) {
+            if ($inclureFrais) {
+                $frais = $commission;
+            }
+        } else {
             $bareme = $this->baremesModel->getFrais(
                 $operation["id"],
                 $montant,
@@ -228,13 +224,12 @@ class TransactionController extends BaseController
 
             if ($inclureFrais) {
                 $frais = $bareme ? $bareme->frais : 0;
-            } else {
-                $frais = $commission;
             }
         }
 
-        $montant = $montant + $frais;
-        $total = $montant;
+        $solde = $this->operationModel->getSoldeClient($client->id);
+
+        $total = $montant + $frais;
 
         if ($solde < $total) {
             session()->setFlashdata("error", "Solde insuffisant");
@@ -245,7 +240,7 @@ class TransactionController extends BaseController
             "client_id" => $client->id,
             "type_operation_id" => $operation["id"],
             "client_destinataire" => $clientDestinataire->id,
-            "montant" => $montant,
+            "montant" => $total,
             "frais" => $frais,
             "operateur_id" => $operateur["id"],
         ]);
@@ -276,7 +271,7 @@ class TransactionController extends BaseController
         );
 
         return $this->response->setJSON([
-            "different" => $operateurSource["id"] != $operateurDest["id"],
+            "different" => $operateurSource["id"] == $operateurDest["id"],
         ]);
     }
 }

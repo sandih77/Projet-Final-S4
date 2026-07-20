@@ -135,7 +135,7 @@ typeOperation.addEventListener("change", function () {
     }
 });
 
-destinataireInput.addEventListener("blur", async function () {
+destinataireInput.addEventListener("input", async function () {
     if (typeOperation.value !== "3" || this.value.length !== 10) {
         fraisDiv.style.display = "none";
         return;
