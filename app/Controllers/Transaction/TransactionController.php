@@ -99,15 +99,14 @@ class TransactionController extends BaseController
                 break;
 
             case "transfert":
-                $telephoneDestinataire = $this->request->getPost(
-                    "destinataire",
-                );
+                $destinataires = $this->request->getPost("destinataire");
+
                 $inclureFrais = $this->request->getPost("inclure_transaction");
 
                 if (
                     !$this->faireTransfert(
                         $client,
-                        $telephoneDestinataire,
+                        $destinataires,
                         $montant,
                         $operation,
                         $operateur,
@@ -180,70 +179,114 @@ class TransactionController extends BaseController
 
     private function faireTransfert(
         $client,
-        $telephoneDestinataire,
+        $destinataires,
         $montant,
         $operation,
         $operateur,
         $inclureFrais,
     ) {
-        $clientDestinataire = $this->clientModel->getClientByTelephone(
-            $telephoneDestinataire,
-        );
-
-        if (!$clientDestinataire) {
-            session()->setFlashdata("error", "Destinataire introuvable");
+        if (!is_array($destinataires) || count($destinataires) == 0) {
+            session()->setFlashdata("error", "Aucun destinataire");
             return false;
         }
 
-        $operateurDestinataire = $this->operateursModel->getOperateurByTelephone(
-            $clientDestinataire->telephone,
-        );
+        $clientsDestinataires = [];
+        $operateurDestinataire = null;
 
-        if (!$operateurDestinataire) {
-            session()->setFlashdata("error", "Opérateur destinataire inconnu");
-            return false;
+        foreach ($destinataires as $telephone) {
+            $clientDestinataire = $this->clientModel->getClientByTelephone(
+                $telephone,
+            );
+
+            if (!$clientDestinataire) {
+                session()->setFlashdata(
+                    "error",
+                    "Destinataire $telephone introuvable",
+                );
+                return false;
+            }
+
+            $operateurDest = $this->operateursModel->getOperateurByTelephone(
+                $clientDestinataire->telephone,
+            );
+
+            if (!$operateurDest) {
+                session()->setFlashdata(
+                    "error",
+                    "Opérateur du destinataire inconnu",
+                );
+                return false;
+            }
+
+            if ($operateurDestinataire == null) {
+                $operateurDestinataire = $operateurDest;
+            }
+
+            if ($operateurDestinataire["id"] != $operateurDest["id"]) {
+                session()->setFlashdata(
+                    "error",
+                    "Les destinataires doivent avoir le même opérateur",
+                );
+                return false;
+            }
+
+            $clientsDestinataires[] = $clientDestinataire;
         }
+
+        $nombreDestinataires = count($clientsDestinataires);
 
         $commission = 0;
         $frais = 0;
 
-        // opérateurs différents => commission
+        // Montant réel envoyé à chaque destinataire
+        $montantParDestinataire = floor($montant / $nombreDestinataires);
+
         if ($operateur["id"] != $operateurDestinataire["id"]) {
+            // Autre opérateur : commission sur chaque part
             $commission =
-                ($montant * $operateurDestinataire["commission"]) / 100;
+                ($montantParDestinataire *
+                    $operateurDestinataire["commission"]) /
+                100;
 
             if ($inclureFrais) {
-                $frais = $commission;
+                $frais = $commission * $nombreDestinataires;
             }
         } else {
+            // Même opérateur : chercher le barème par destinataire
             $bareme = $this->baremesModel->getFrais(
                 $operation["id"],
-                $montant,
+                $montantParDestinataire,
                 $operateur["id"],
             );
 
             if ($inclureFrais) {
-                $frais = $bareme ? $bareme->frais : 0;
+                $frais = ($bareme ? $bareme->frais : 0) * $nombreDestinataires;
             }
         }
 
-        $solde = $this->operationModel->getSoldeClient($client->id);
-
         $total = $montant + $frais;
+        $montantTotalParDestinataire = floor($total / $nombreDestinataires);
+
+        $solde = $this->operationModel->getSoldeClient($client->id);
 
         if ($solde < $total) {
             session()->setFlashdata("error", "Solde insuffisant");
+
             return false;
         }
 
-        return $this->operationModel->insert([
-            "client_id" => $client->id,
-            "type_operation_id" => $operation["id"],
-            "client_destinataire" => $clientDestinataire->id,
-            "montant" => $total,
-            "frais" => $frais,
-            "operateur_id" => $operateur["id"],
-        ]);
+        foreach ($clientsDestinataires as $clientDestinataire) {
+            $this->operationModel->insert([
+                "client_id" => $client->id,
+                "type_operation_id" => $operation["id"],
+                "client_destinataire" => $clientDestinataire->id,
+                "montant" => $montantTotalParDestinataire,
+                "frais" => $frais / $nombreDestinataires,
+                "operateur_id" => $operateur["id"],
+            ]);
+        }
+
+        return true;
     }
 
     public function verifierOperateur()
