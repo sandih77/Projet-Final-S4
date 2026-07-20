@@ -101,4 +101,34 @@
     </a>
 </div>
 
+<h2>Situation des Comptes Clients</h2>
+    <h3>Fonds totaux en circulation : <?= number_format($total_solde_clients ?? 0, 0, ',', ' ') ?> Ar</h3>
+
+    <table border="1" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Téléphone</th>
+                <th>Solde Calculé (Ar)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($clients)) : ?>
+                <?php foreach ($clients as $client) : ?>
+                    <tr>
+                        <td><?= $client->id ?></td>
+                        <td><?= esc($client->nom) ?></td>
+                        <td><?= esc($client->telephone) ?></td>
+                        <td><strong><?= number_format($client->solde, 0, ',', ' ') ?> Ar</strong></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <tr>
+                    <td colspan="4">Aucun client trouvé.</td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
 <?= $this->endSection() ?>
