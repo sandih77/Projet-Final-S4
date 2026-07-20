@@ -21,19 +21,25 @@ $navItems = $isClientArea
             'match' => 'clients/dashboard',
             'url' => 'clients/dashboard',
             'label' => 'Tableau de bord',
-            'icon' => 'grid',
+            'icon' => 'bi-speedometer2',
         ],
         [
             'match' => 'clients/solde',
             'url' => 'clients/solde/' . ($clientSession ? $clientSession['id'] : ''),
             'label' => 'Mon solde',
-            'icon' => 'wallet',
+            'icon' => 'bi-wallet2',
         ],
         [
             'match' => 'clients/transaction',
             'url' => 'clients/transaction',
             'label' => 'Faire une transaction',
-            'icon' => 'swap',
+            'icon' => 'bi-arrow-left-right',
+        ],
+        [
+            'match' => 'clients/historique',
+            'url' => 'clients/historique',
+            'label' => 'Historique',
+            'icon' => 'bi-clock-history',
         ],
     ]
     : [
@@ -41,49 +47,30 @@ $navItems = $isClientArea
             'match' => 'operateurs/operateurs',
             'url' => 'operateurs/operateurs',
             'label' => 'Opérateurs',
-            'icon' => 'building',
+            'icon' => 'bi-building',
         ],
         [
             'match' => 'operateurs/prefixes',
             'url' => 'operateurs/prefixes',
             'label' => 'Préfixes',
-            'icon' => 'hash',
+            'icon' => 'bi-hash',
         ],
         [
             'match' => 'operateurs/types-operation',
             'url' => 'operateurs/types-operation',
             'label' => "Types d'opération",
-            'icon' => 'layers',
+            'icon' => 'bi-diagram-3',
         ],
         [
             'match' => 'operateurs/baremes',
             'url' => 'operateurs/baremes',
             'label' => 'Barèmes',
-            'icon' => 'sliders',
+            'icon' => 'bi-sliders',
         ],
     ];
 
 $dashboardUrl = $isClientArea ? 'clients/dashboard' : 'operateurs';
 $pageTitle = trim($this->renderSection('title', true));
-
-function moneyflow_icon(string $name): string
-{
-    $icons = [
-        'grid' => '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
-        'building' => '<path d="M4 21V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v15"/><path d="M15 21V10a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v11"/><path d="M9 9h0M9 12h0M9 15h0M9 18h0"/><line x1="3" y1="21" x2="21" y2="21"/>',
-        'hash' => '<line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="10" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="14" y2="20"/>',
-        'layers' => '<polygon points="12 2 21 7 12 12 3 7 12 2"/><polyline points="3 12 12 17 21 12"/><polyline points="3 17 12 22 21 17"/>',
-        'sliders' => '<line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/>',
-        'wallet' => '<path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3"/><path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2Z"/><circle cx="16.5" cy="14.5" r="1.5"/>',
-        'swap' => '<polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
-        'logout' => '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
-        'menu' => '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
-    ];
-
-    $path = $icons[$name] ?? '';
-
-    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' . $path . '</svg>';
-}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -91,6 +78,7 @@ function moneyflow_icon(string $name): string
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle !== '' ? $pageTitle . ' · ' : '' ?>MoneyFlow</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="<?= base_url('assets/css/app.css') ?>">
 </head>
 <body>
@@ -101,7 +89,7 @@ function moneyflow_icon(string $name): string
         <aside class="sidebar" id="appSidebar">
             <div class="sidebar-brand">
                 <div class="brand-mark">
-                    <?= moneyflow_icon('wallet') ?>
+                    <i class="bi bi-wallet2"></i>
                 </div>
                 <div>
                     <span class="brand-name">MoneyFlow</span>
@@ -114,7 +102,7 @@ function moneyflow_icon(string $name): string
                     href="<?= site_url($dashboardUrl) ?>"
                     class="nav-link <?= ($currentUri === $dashboardUrl || $currentUri === 'operateurs') ? 'active' : '' ?>"
                 >
-                    <?= moneyflow_icon('grid') ?>
+                    <i class="bi bi-speedometer2"></i>
                     <span>Tableau de bord</span>
                 </a>
 
@@ -124,7 +112,7 @@ function moneyflow_icon(string $name): string
                         href="<?= site_url($item['url']) ?>"
                         class="nav-link <?= str_starts_with($currentUri, $item['match']) ? 'active' : '' ?>"
                     >
-                        <?= moneyflow_icon($item['icon']) ?>
+                        <i class="bi <?= esc($item['icon']) ?>"></i>
                         <span><?= esc($item['label']) ?></span>
                     </a>
                 <?php endforeach; ?>
@@ -140,12 +128,12 @@ function moneyflow_icon(string $name): string
                         </div>
                     </div>
                     <a href="<?= site_url('clients/logout') ?>" class="nav-link logout">
-                        <?= moneyflow_icon('logout') ?>
+                        <i class="bi bi-box-arrow-right"></i>
                         <span>Déconnexion</span>
                     </a>
                 <?php elseif (!$isClientArea) : ?>
                     <a href="<?= base_url('/') ?>" class="nav-link logout">
-                        <?= moneyflow_icon('logout') ?>
+                        <i class="bi bi-box-arrow-right"></i>
                         <span>Quitter l'espace</span>
                     </a>
                 <?php endif; ?>
@@ -156,7 +144,7 @@ function moneyflow_icon(string $name): string
             <header class="topbar">
                 <div class="topbar-left">
                     <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Ouvrir le menu">
-                        <?= moneyflow_icon('menu') ?>
+                        <i class="bi bi-list"></i>
                     </button>
                     <div>
                         <div class="topbar-title"><?= $pageTitle !== '' ? $pageTitle : 'MoneyFlow' ?></div>
@@ -165,9 +153,9 @@ function moneyflow_icon(string $name): string
                 </div>
                 <div class="topbar-right">
                     <?php if ($isClientArea && $clientSession) : ?>
-                        <span class="badge-role">Bienvenue, <?= esc($clientSession['nom'] ?? '') ?></span>
+                        <span class="badge-role"><i class="bi bi-person-circle"></i> Bienvenue, <?= esc($clientSession['nom'] ?? '') ?></span>
                     <?php elseif (!$isClientArea) : ?>
-                        <span class="badge-role">Back-office</span>
+                        <span class="badge-role"><i class="bi bi-shield-lock"></i> Back-office</span>
                     <?php endif; ?>
                 </div>
             </header>

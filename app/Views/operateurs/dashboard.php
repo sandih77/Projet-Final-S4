@@ -16,7 +16,7 @@
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-icon tone-indigo">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v15"/><path d="M15 21V10a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v11"/><line x1="3" y1="21" x2="21" y2="21"/></svg>
+            <i class="bi bi-building"></i>
         </div>
         <div>
             <div class="stat-value"><?= (int) ($stats['operateurs'] ?? 0) ?></div>
@@ -26,7 +26,7 @@
 
     <div class="stat-card">
         <div class="stat-icon tone-green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="10" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="14" y2="20"/></svg>
+            <i class="bi bi-hash"></i>
         </div>
         <div>
             <div class="stat-value"><?= (int) ($stats['prefixes'] ?? 0) ?></div>
@@ -36,7 +36,7 @@
 
     <div class="stat-card">
         <div class="stat-icon tone-amber">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 21 7 12 12 3 7 12 2"/><polyline points="3 12 12 17 21 12"/><polyline points="3 17 12 22 21 17"/></svg>
+            <i class="bi bi-diagram-3"></i>
         </div>
         <div>
             <div class="stat-value"><?= (int) ($stats['types_operation'] ?? 0) ?></div>
@@ -46,7 +46,7 @@
 
     <div class="stat-card">
         <div class="stat-icon tone-red">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+            <i class="bi bi-sliders"></i>
         </div>
         <div>
             <div class="stat-value"><?= (int) ($stats['baremes'] ?? 0) ?></div>
@@ -62,7 +62,7 @@
 <div class="quick-links">
     <a href="<?= site_url('operateurs/operateurs') ?>" class="quick-link-card">
         <div class="qc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v15"/><path d="M15 21V10a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v11"/><line x1="3" y1="21" x2="21" y2="21"/></svg>
+            <i class="bi bi-building"></i>
         </div>
         <div>
             <strong>Gérer les opérateurs</strong>
@@ -72,7 +72,7 @@
 
     <a href="<?= site_url('operateurs/prefixes') ?>" class="quick-link-card">
         <div class="qc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/><line x1="10" y1="4" x2="7" y2="20"/><line x1="17" y1="4" x2="14" y2="20"/></svg>
+            <i class="bi bi-hash"></i>
         </div>
         <div>
             <strong>Gérer les préfixes</strong>
@@ -82,7 +82,7 @@
 
     <a href="<?= site_url('operateurs/types-operation') ?>" class="quick-link-card">
         <div class="qc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 21 7 12 12 3 7 12 2"/><polyline points="3 12 12 17 21 12"/><polyline points="3 17 12 22 21 17"/></svg>
+            <i class="bi bi-diagram-3"></i>
         </div>
         <div>
             <strong>Types d'opération</strong>
@@ -92,7 +92,7 @@
 
     <a href="<?= site_url('operateurs/baremes') ?>" class="quick-link-card">
         <div class="qc-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/></svg>
+            <i class="bi bi-sliders"></i>
         </div>
         <div>
             <strong>Gérer les barèmes</strong>
@@ -101,34 +101,46 @@
     </a>
 </div>
 
-<h2>Situation des Comptes Clients</h2>
-    <h3>Fonds totaux en circulation : <?= number_format($total_solde_clients ?? 0, 0, ',', ' ') ?> Ar</h3>
+<div class="page-header" style="margin-top:32px;">
+    <div>
+        <h2 style="margin-bottom:0;">Situation des comptes clients</h2>
+        <p class="page-description">Fonds totaux en circulation : <strong><?= number_format((float) ($total_solde_clients ?? 0), 0, ',', ' ') ?> Ar</strong></p>
+    </div>
+</div>
 
-    <table border="1" cellpadding="8" cellspacing="0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nom</th>
-                <th>Téléphone</th>
-                <th>Solde Calculé (Ar)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($clients)) : ?>
-                <?php foreach ($clients as $client) : ?>
+<div class="card">
+    <?php if (empty($clients)) : ?>
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <strong>Aucun client trouvé</strong>
+            <span>Les comptes clients apparaîtront ici une fois créés.</span>
+        </div>
+    <?php else : ?>
+        <div class="table-wrap">
+            <table class="data-table">
+                <thead>
                     <tr>
-                        <td><?= $client->id ?></td>
-                        <td><?= esc($client->nom) ?></td>
-                        <td><?= esc($client->telephone) ?></td>
-                        <td><strong><?= number_format($client->solde, 0, ',', ' ') ?> Ar</strong></td>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Téléphone</th>
+                        <th>Solde calculé</th>
                     </tr>
-                <?php endforeach; ?>
-            <?php else : ?>
-                <tr>
-                    <td colspan="4">Aucun client trouvé.</td>
-                </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($clients as $client) : ?>
+                        <tr>
+                            <td><span class="id-badge">#<?= esc($client->id) ?></span></td>
+                            <td><strong><?= esc($client->nom) ?></strong></td>
+                            <td><?= esc($client->telephone) ?></td>
+                            <td class="money <?= $client->solde >= 0 ? 'positive' : 'negative' ?>">
+                                <?= number_format((float) $client->solde, 0, ',', ' ') ?> Ar
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</div>
 
 <?= $this->endSection() ?>

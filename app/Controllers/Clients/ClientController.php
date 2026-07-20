@@ -73,7 +73,7 @@ class ClientController extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to("/clients");
+        return redirect()->to("/");
     }
 
     public function solde($id)
@@ -89,6 +89,24 @@ class ClientController extends BaseController
         return view("clients/solde", [
             "client" => $client,
             "solde" => $solde,
+        ]);
+    }
+
+    public function historique()
+    {
+        $clientSession = session()->get("client");
+
+        if (!$clientSession) {
+            return redirect()->to("/clients");
+        }
+
+        $historique = $this->operationModel->getHistoriqueClient(
+            $clientSession["id"],
+        );
+
+        return view("clients/historique", [
+            "client" => $clientSession,
+            "historique" => $historique,
         ]);
     }
 }

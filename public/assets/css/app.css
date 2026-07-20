@@ -120,6 +120,7 @@ p {
     justify-content: center;
     color: #fff;
     flex-shrink: 0;
+    font-size: 18px;
 }
 
 .sidebar-brand .brand-name {
@@ -166,10 +167,15 @@ p {
     transition: background 0.15s ease, color 0.15s ease;
 }
 
-.sidebar-nav a.nav-link svg {
+.sidebar-nav a.nav-link svg,
+.sidebar-nav a.nav-link i {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
+    font-size: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sidebar-nav a.nav-link:hover {
@@ -333,6 +339,9 @@ p {
     padding: 6px 12px;
     border-radius: 999px;
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .content {
@@ -378,9 +387,14 @@ p {
     line-height: 1.2;
 }
 
-.btn svg {
+.btn svg,
+.btn i {
     width: 16px;
     height: 16px;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn:active {
@@ -493,9 +507,14 @@ p {
     flex-shrink: 0;
 }
 
-.stat-card .stat-icon svg {
+.stat-card .stat-icon svg,
+.stat-card .stat-icon i {
     width: 22px;
     height: 22px;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .stat-icon.tone-indigo { background: var(--primary-light); color: var(--primary-dark); }
@@ -553,9 +572,14 @@ p {
     flex-shrink: 0;
 }
 
-.quick-link-card .qc-icon svg {
+.quick-link-card .qc-icon svg,
+.quick-link-card .qc-icon i {
     width: 20px;
     height: 20px;
+    font-size: 19px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .quick-link-card strong {
@@ -632,13 +656,19 @@ table.data-table .col-actions {
 }
 
 .pill {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     background: var(--primary-light);
     color: var(--primary-dark);
     font-size: 12.5px;
     font-weight: 600;
     padding: 4px 11px;
     border-radius: 999px;
+}
+
+.pill i {
+    font-size: 13px;
 }
 
 .pill-muted {
@@ -660,11 +690,16 @@ table.data-table .col-actions {
     color: var(--text-muted);
 }
 
-.empty-state svg {
+.empty-state svg,
+.empty-state i {
     width: 46px;
     height: 46px;
     margin-bottom: 14px;
     color: var(--border);
+    font-size: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .empty-state strong {
@@ -747,9 +782,14 @@ textarea:focus {
     color: var(--primary);
 }
 
-.back-link svg {
+.back-link svg,
+.back-link i {
     width: 15px;
     height: 15px;
+    font-size: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* -------------------------------------------------------------------------
@@ -767,11 +807,16 @@ textarea:focus {
     border: 1px solid transparent;
 }
 
-.alert svg {
+.alert svg,
+.alert i {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
     margin-top: 1px;
+    font-size: 17px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .alert p {
@@ -829,6 +874,7 @@ textarea:focus {
     justify-content: center;
     color: #fff;
     flex-shrink: 0;
+    font-size: 20px;
 }
 
 .auth-brand .brand-name {

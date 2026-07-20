@@ -16,6 +16,7 @@ $routes->group("clients", function ($routes) {
     $routes->get("logout", [ClientController::class, "logout"]);
     $routes->get("dashboard", [ClientController::class, "dashboard"]);
     $routes->get("solde/(:num)", [ClientController::class, "solde/$1"]);
+    $routes->get("historique", [ClientController::class, "historique"]);
 
     $routes->group("transaction", function ($routes) {
         $routes->get("/", [TransactionController::class, "index"]);

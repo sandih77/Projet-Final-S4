@@ -130,4 +130,33 @@ class OperationsModel extends Model
 
         return $result->gain ?? 0;
     }
+
+
+    /**
+     * Historique complet des opérations d'un client (envoyées et reçues),
+     * avec les libellés (type d'opération, opérateur, destinataire) déjà résolus.
+     */
+    public function getHistoriqueClient($clientId): array
+    {
+        return $this->db
+            ->table("operations")
+            ->select(
+                "operations.id, operations.montant, operations.frais, " .
+                "operations.date_operation, operations.client_id, operations.client_destinataire, " .
+                "types_operation.nom AS type_operation_nom, " .
+                "operateur.nom AS operateur_nom, " .
+                "dest.nom AS destinataire_nom, " .
+                "dest.telephone AS destinataire_telephone",
+            )
+            ->join("types_operation", "types_operation.id = operations.type_operation_id", "left")
+            ->join("operateur", "operateur.id = operations.operateur_id", "left")
+            ->join("clients AS dest", "dest.id = operations.client_destinataire", "left")
+            ->groupStart()
+                ->where("operations.client_id", $clientId)
+                ->orWhere("operations.client_destinataire", $clientId)
+            ->groupEnd()
+            ->orderBy("operations.date_operation", "DESC")
+            ->get()
+            ->getResultArray();
+    }
 }

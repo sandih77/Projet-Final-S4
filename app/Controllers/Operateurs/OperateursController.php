@@ -23,7 +23,9 @@ class OperateursController extends BaseController
             'baremes' => (new BaremesModel())->countAllResults(),
         ];
 
-        return view('operateurs/dashboard', ['stats' => $stats]);
+        $situationClients = $this->getSituationComptesClients();
+
+        return view('operateurs/dashboard', array_merge(['stats' => $stats], $situationClients));
     }
 
     public function index()

@@ -11,6 +11,7 @@ $pageTitle = trim($this->renderSection('title', true));
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle !== '' ? $pageTitle . ' · ' : '' ?>MoneyFlow</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="<?= base_url('assets/css/app.css') ?>">
 </head>
 <body>
@@ -18,11 +19,7 @@ $pageTitle = trim($this->renderSection('title', true));
         <div class="auth-card">
             <div class="auth-brand">
                 <div class="brand-mark">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 7a2 2 0 0 1 2-2h13a1 1 0 0 1 1 1v3"/>
-                        <path d="M3 7v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10a1 1 0 0 0-1-1H5a2 2 0 0 1-2-2Z"/>
-                        <circle cx="16.5" cy="14.5" r="1.5"/>
-                    </svg>
+                    <i class="bi bi-wallet2"></i>
                 </div>
                 <div>
                     <span class="brand-name">MoneyFlow</span>

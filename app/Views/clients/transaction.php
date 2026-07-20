@@ -5,7 +5,7 @@
 <?= $this->section('content') ?>
 
 <a href="<?= site_url("clients/dashboard") ?>" class="back-link">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    <i class="bi bi-arrow-left"></i>
     Retour au tableau de bord
 </a>
 
@@ -74,6 +74,7 @@
 
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check2-circle"></i>
                     Valider la transaction
                 </button>
                 <a href="<?= site_url("clients/dashboard") ?>" class="btn btn-secondary">
