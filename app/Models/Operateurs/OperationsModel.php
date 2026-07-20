@@ -24,15 +24,14 @@ class OperationsModel extends Model
 
     public function getGainTotal($operateur_id = null)
     {
-        if ($operateur_id !== null) {
-            $result = $this->select('SUM(frais) as total_gains')
-                ->where('operateur_id', $operateur_id)
-                ->first();
-            return $result['total_gains'] ?? 0;
-        }
+        $totalFrais = $this->select('SUM(frais) as total')
+            ->where('operateur_id', $operateur_id)
+            ->first()['total'] ?? 0;
 
-        $result = $this->select('SUM(frais) as total_gains')->first();
-        return $result['total_gains'] ?? 0;
+        $gainsAutres = $this->getGainAutreOperateur($operateur_id);
+        $totalCommissionsAutres = array_sum($gainsAutres);
+
+        return $totalFrais - $totalCommissionsAutres;
     }
 
     public function getGainAutreOperateur($operateur_id)
@@ -261,4 +260,58 @@ class OperationsModel extends Model
             ->get()
             ->getResultArray();
     }
+
+    public function getFraisTransfert($montant, $monOperateurId, $telephoneDestinataire)
+    {
+        $operateursModel = new \App\Models\Operateurs\OperateursModel();
+        $operateurDest   = $operateursModel->getOperateurByTelephone($telephoneDestinataire);
+
+        if ($operateurDest) {
+            $destOperateurId = is_array($operateurDest) ? $operateurDest['id'] : $operateurDest->id;
+
+            // Si transfert inter-opérateur -> 0 frais
+            if ($destOperateurId != $monOperateurId) {
+                return 0;
+            }
+        }
+
+        // Sinon (même opérateur) -> Calcul selon le barème (type_operation_id = 3 pour transfert)
+        $bareme = $this->getFrais(3, $montant, $monOperateurId);
+
+        return $bareme ? $bareme->frais : 0;
+    }
+
+    public function getSoldeClientSansFrais($clientId)
+    {
+        
+        $recu = $this->db
+            ->table("operations")
+            ->selectSum("montant", "total")
+            ->groupStart()
+                ->where("client_id", $clientId)
+                ->where("type_operation_id", 1)
+            ->groupEnd()
+            ->orGroupStart()
+                ->where("client_destinataire", $clientId)
+                ->where("type_operation_id", 3)
+            ->groupEnd()
+            ->get()
+            ->getRow();
+
+            
+        $sortie = $this->db
+            ->table("operations")
+            ->selectSum("montant", "total")
+            ->where("client_id", $clientId)
+            ->whereIn("type_operation_id", [2, 3])
+            ->get()
+            ->getRow();
+
+        $totalRecu   = $recu->total ?? 0;
+        $totalSortie = $sortie->total ?? 0;
+
+        return $totalRecu - $totalSortie;
+    }
+
+    
 }

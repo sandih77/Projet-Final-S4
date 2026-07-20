@@ -74,24 +74,35 @@ class OperateursController extends BaseController
         return redirect()->to("/operateurs/operateurs");
     }
 
-    public function getSituationClient() {}
 
     private function getSituationComptesClients(): array
     {
-        $clientModel = new ClientModel();
-        $operationsModel = new OperationsModel();
+        $monOperateurId = 1;
 
-        $clients = $clientModel->findAll();
+        $clientModel     = new ClientModel();
+        $operationsModel = new OperationsModel();
+        $operateursModel = new OperateursModel();
+
+        $allClients       = $clientModel->findAll();
+        $nosClients       = [];
         $totalSoldeGlobal = 0;
 
-        foreach ($clients as $client) {
-            $solde = $operationsModel->getSoldeClient($client->id);
-            $client->solde = $solde;
-            $totalSoldeGlobal += $solde;
+        foreach ($allClients as $client) {
+            
+            $operateur = $operateursModel->getOperateurByTelephone($client->telephone);
+            $operateurId = is_array($operateur) ? ($operateur['id'] ?? null) : ($operateur->id ?? null);
+
+            if ($operateurId == $monOperateurId) {
+                $solde         = $operationsModel->getSoldeClientSansFrais($client->id);
+                $client->solde = $solde;
+
+                $nosClients[]      = $client;
+                $totalSoldeGlobal += $solde;
+            }
         }
 
         return [
-            "clients" => $clients,
+            "clients"             => $nosClients,
             "total_solde_clients" => $totalSoldeGlobal,
         ];
     }
