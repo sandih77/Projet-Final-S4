@@ -40,27 +40,15 @@
 
             <div class="form-group" id="destinataire_div" style="display:none;">
                 <label for="destinataire">Téléphone du destinataire</label>
-
                 <input
                     type="tel"
                     id="destinataire"
-                    name="destinataire[]"
+                    name="destinataire"
                     placeholder="0341234567"
                     pattern="^(032|033|034|037|038)[0-9]{7}$"
                     minlength="10"
                     maxlength="10"
                 >
-
-                <div id="destinataires_container"></div>
-
-                <button
-                    type="button"
-                    id="ajouter_destinataire"
-                    class="btn btn-secondary"
-                    style="margin-top:10px;"
-                >
-                    + Ajouter destinataire
-                </button>
             </div>
 
             <div class="form-group">
@@ -73,6 +61,31 @@
                     required
                 >
             </div>
+
+            <div class="form-group" id="frais_div" style="display:none;">
+                <label>Inclure les frais de retrait ?</label>
+
+                <div class="radio-group">
+                    <label>
+                        <input
+                            type="radio"
+                            name="inclure_transaction"
+                            value="1"
+                            checked
+                        >
+                        Oui
+                    </label>
+                    <label>
+                        <input
+                            type="radio"
+                            name="inclure_transaction"
+                            value="0"
+                        >
+                        Non
+                    </label>
+                </div>
+            </div>
+
 
             <div class="form-group">
                 <label for="code_secret">Code secret</label>
@@ -105,66 +118,54 @@
 </div>
 
 <script>
-    const typeOperation = document.getElementById("type_operation");
-    const destinataireDiv = document.getElementById("destinataire_div");
-    const destinataireInput = document.getElementById("destinataire");
+const typeOperation = document.getElementById("type_operation");
+const destinataireDiv = document.getElementById("destinataire_div");
+const destinataireInput = document.getElementById("destinataire");
+const fraisDiv = document.getElementById("frais_div");
 
-    typeOperation.addEventListener("change", function () {
-        if (this.value == "3") {
-            destinataireDiv.style.display = "block";
-            destinataireInput.required = true;
+typeOperation.addEventListener("change", function () {
+    const isTransfert = this.value === "3";
 
+    destinataireDiv.style.display = isTransfert ? "block" : "none";
+    destinataireInput.required = isTransfert;
+
+    if (!isTransfert) {
+        destinataireInput.value = "";
+        fraisDiv.style.display = "none";
+    }
+});
+
+destinataireInput.addEventListener("input", async function () {
+    if (typeOperation.value !== "3" || this.value.length !== 10) {
+        fraisDiv.style.display = "none";
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append("telephone", this.value);
+
+        const response = await fetch(
+            "<?= site_url('clients/transaction/verifier-operateur') ?>",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (data.different) {
+            fraisDiv.style.display = "block";
         } else {
-            destinataireDiv.style.display = "none";
-            destinataireInput.required = false;
-            destinataireInput.value = "";
+            fraisDiv.style.display = "none";
         }
 
-    });
-    const ajouterDestinataireBtn = document.getElementById("ajouter_destinataire");
-    const destinatairesContainer = document.getElementById("destinataires_container");
-
-    ajouterDestinataireBtn.addEventListener("click", function () {
-
-        const premierNumero = destinataireInput.value;
-
-        if (premierNumero.length < 3) {
-            alert("Saisissez d'abord le premier numéro");
-            return;
-        }
-
-        const prefixe = premierNumero.substring(0, 3);
-
-        const div = document.createElement("div");
-        div.classList.add("destinataire-item");
-
-        div.innerHTML = `
-            <label>Autre destinataire</label>
-            <input
-                type="tel"
-                name="destinataire[]"
-                value="${prefixe}"
-                placeholder="${prefixe}xxxxxxx"
-                pattern="^(032|033|034|037|038)[0-9]{7}$"
-                minlength="10"
-                maxlength="10"
-            >
-            <button type="button" class="btn btn-danger supprimer">
-                Supprimer
-            </button>
-        `;
-
-        destinatairesContainer.appendChild(div);
-
-    });
-
-    destinatairesContainer.addEventListener("click", function(e) {
-
-        if (e.target.classList.contains("supprimer")) {
-            e.target.parentElement.remove();
-        }
-    });
-
+    } catch (error) {
+        console.error(error);
+        fraisDiv.style.display = "none";
+    }
+});
 
 </script>
 

@@ -21,6 +21,7 @@ $routes->group("clients", function ($routes) {
     $routes->group("transaction", function ($routes) {
         $routes->get("/", [TransactionController::class, "index"]);
         $routes->post("validate", [TransactionController::class, "store"]);
+        $routes->post("verifier-operateur", [TransactionController::class, "verifierOperateur"]);
     });
 });
 
