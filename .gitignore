@@ -17,6 +17,10 @@ application/logs/*
 !application/logs/.htaccess
 /vendor/
 
+
+.env
+
+/writable/*
 /writable/debugbar
 /writable/logs
 /writable/session
