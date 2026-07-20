@@ -33,14 +33,29 @@ class ClientController extends BaseController
         );
 
         if ($client) {
-            return view("clients/dashboard", [
+            session()->set([
                 "client" => $client,
+                "logged_in" => true,
             ]);
-        } else {
-            return view("clients/login", [
-                "error" => "Vérifiez votre code secret et votre numéro de téléphone",
-            ]);
+
+            return redirect()->to("/clients/dashboard");
         }
+
+        return view("clients/login", [
+            "error" =>
+                "Vérifiez votre code secret et votre numéro de téléphone",
+        ]);
+    }
+
+    public function dashboard()
+    {
+        if (!session()->get("logged_in")) {
+            return redirect()->to("/clients");
+        }
+
+        return view("clients/dashboard", [
+            "client" => session()->get("client"),
+        ]);
     }
 
     public function logout()
