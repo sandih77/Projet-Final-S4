@@ -9,7 +9,7 @@ class ClientModel extends Model
     protected $table = "clients";
     protected $primaryKey = "id";
     protected $allowedFields = ["nom", "telephone", "code_secret"];
-    protected $returnType = 'object';
+    protected $returnType = "object";
 
     protected $validationRules = [
         "telephone" =>
@@ -34,5 +34,10 @@ class ClientModel extends Model
         return $this->where("code_secret", $code_secret)
             ->where("telephone", $telephone)
             ->first();
+    }
+
+    public function getClientByTelephone($telephone)
+    {
+        return $this->where("telephone", $telephone)->first();
     }
 }

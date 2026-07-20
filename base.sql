@@ -54,3 +54,24 @@ CREATE TABLE operations (
 INSERT INTO clients (nom, telephone, code_secret)
 VALUES
     ('Sandih', '0388784291', 1234);
+
+INSERT INTO types_operation (nom)
+VALUES
+    ('depot'),
+    ('retrait'),
+    ('transfert');
+
+INSERT INTO operateur (nom)
+VALUES
+    ('telma'),
+    ('orange'),
+    ('airtel');
+
+INSERT INTO prefixes (prefixe, operateur_id)
+VALUES
+    ('034', 1),
+    ('038', 1),
+    ('033', 3),
+    ('037', 2),
+    ('032', 2);
+

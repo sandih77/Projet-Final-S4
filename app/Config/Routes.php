@@ -2,7 +2,7 @@
 
 use CodeIgniter\Router\RouteCollection;
 use App\Controllers\Clients\ClientController;
-use App\Controllers\Clients\TransactionController;
+use App\Controllers\Transaction\TransactionController;
 
 /**
  * @var RouteCollection $routes
