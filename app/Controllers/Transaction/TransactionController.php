@@ -60,7 +60,6 @@ class TransactionController extends BaseController
                 ->with("error", "Code secret incorrect");
         }
 
-        // Ici $operation est un tableau
         $operation = $this->typesOperationModel->find($operationId);
 
         if (!$operation) {
