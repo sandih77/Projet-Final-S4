@@ -54,6 +54,9 @@ CREATE TABLE operations (
 INSERT INTO clients (nom, telephone, code_secret)
 VALUES
     ('Sandih', '0388784291', 1234);
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Test', '0343434434', 1234);
 
 INSERT INTO types_operation (nom)
 VALUES
@@ -75,3 +78,14 @@ VALUES
     ('037', 2),
     ('032', 2);
 
+INSERT INTO baremes (type_operation_id, montant_min, montant_max, frais, operateur_id)
+VALUES
+    (1, 0, 1000, 10, 1),
+    (1, 1000, 2000, 20, 1),
+    (1, 2000, 3000, 30, 1),
+    (2, 0, 1000, 5, 1),
+    (2, 1000, 2000, 10, 1),
+    (2, 2000, 3000, 15, 1),
+    (3, 0, 1000, 15, 1),
+    (3, 1000, 2000, 20, 1),
+    (3, 2000, 3000, 25, 1);

@@ -13,6 +13,7 @@
     <ul>
         <li><a href="<?= site_url('clients/transaction')?>">Faire une transaction</a></li>
         <li><a href="<?= site_url('clients/logout')?>">Se déconnecter</a></li>
+        <li><a href="<?= site_url('clients/solde/'.$client['id'])?>">Voir solde</a></li>
     </ul>
 
 </body>

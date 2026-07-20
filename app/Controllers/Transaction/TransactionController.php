@@ -7,6 +7,7 @@ use App\Models\Clients\ClientModel;
 use App\Models\Operateurs\TypesOperationModel;
 use App\Models\Operateurs\OperationsModel;
 use App\Models\Operateurs\OperateursModel;
+use App\Models\Operateurs\BaremesModel;
 
 class TransactionController extends BaseController
 {
@@ -14,6 +15,7 @@ class TransactionController extends BaseController
     private TypesOperationModel $typesOperationModel;
     private OperationsModel $operationModel;
     private OperateursModel $operateursModel;
+    private BaremesModel $baremesModel;
 
     public function __construct()
     {
@@ -21,6 +23,7 @@ class TransactionController extends BaseController
         $this->typesOperationModel = new TypesOperationModel();
         $this->operationModel = new OperationsModel();
         $this->operateursModel = new OperateursModel();
+        $this->baremesModel = new BaremesModel();
     }
 
     public function index()
@@ -111,6 +114,25 @@ class TransactionController extends BaseController
                         ->with("error", "Destinataire introuvable");
                 }
 
+                $operateurDestinataire = $this->operateursModel->getOperateurByTelephone(
+                    $clientDestinataire->telephone,
+                );
+
+                if (!$operateurDestinataire) {
+                    return redirect()
+                        ->back()
+                        ->with("error", "Opérateur destinataire inconnu");
+                }
+
+                if ($operateur["id"] != $operateurDestinataire["id"]) {
+                    return redirect()
+                        ->back()
+                        ->with(
+                            "error",
+                            "Transfert impossible : les deux clients doivent avoir le même opérateur",
+                        );
+                }
+
                 if (
                     !$this->faireTransfert(
                         $client,
@@ -156,21 +178,30 @@ class TransactionController extends BaseController
     {
         $solde = $this->operationModel->getSoldeClient($client->id);
 
-        if ($solde < $montant) {
+        $bareme = $this->baremesModel->getFrais(
+            $operation["id"],
+            $montant,
+            $operateur["id"],
+        );
+
+        $frais = $bareme ? $bareme->frais : 0;
+
+        $total = $montant + $frais;
+
+        if ($solde < $total) {
             return false;
         }
 
         return $this->operationModel->insert([
             "client_id" => $client->id,
 
-            // Correction ici
             "type_operation_id" => $operation["id"],
 
             "client_destinataire" => null,
 
             "montant" => $montant,
 
-            "frais" => 0,
+            "frais" => $frais,
 
             "operateur_id" => $operateur["id"],
         ]);
@@ -185,21 +216,30 @@ class TransactionController extends BaseController
     ) {
         $solde = $this->operationModel->getSoldeClient($client->id);
 
-        if ($solde < $montant) {
+        $bareme = $this->baremesModel->getFrais(
+            $operation["id"],
+            $montant,
+            $operateur["id"],
+        );
+
+        $frais = $bareme ? $bareme->frais : 0;
+
+        $total = $montant + $frais;
+
+        if ($solde < $total) {
             return false;
         }
 
         return $this->operationModel->insert([
             "client_id" => $client->id,
 
-            // Correction ici
             "type_operation_id" => $operation["id"],
 
             "client_destinataire" => $clientDestinataire->id,
 
             "montant" => $montant,
 
-            "frais" => 0,
+            "frais" => $frais,
 
             "operateur_id" => $operateur["id"],
         ]);
