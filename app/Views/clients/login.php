@@ -9,24 +9,6 @@
 
 <?= $this->include('partials/alerts') ?>
 
-<?php if (isset($errors)) : ?>
-    <div class="alert alert-error">
-        <i class="bi bi-exclamation-circle-fill"></i>
-        <div>
-            <?php foreach ($errors as $error) : ?>
-                <p><?= esc($error) ?></p>
-            <?php endforeach; ?>
-        </div>
-    </div>
-<?php endif; ?>
-
-<?php if (isset($error)) : ?>
-    <div class="alert alert-error">
-        <i class="bi bi-exclamation-circle-fill"></i>
-        <p><?= esc($error) ?></p>
-    </div>
-<?php endif; ?>
-
 <form action="<?= site_url("clients/login") ?>" method="post" class="form-grid">
 
     <?= csrf_field() ?>

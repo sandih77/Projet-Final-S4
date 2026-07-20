@@ -473,6 +473,11 @@ p {
     margin: 0;
 }
 
+.card-header h2 i, .card-header h3 i {
+    margin-right: 6px;
+    color: var(--primary);
+}
+
 .card-form {
     max-width: 620px;
 }

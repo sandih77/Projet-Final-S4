@@ -53,23 +53,94 @@
             <div class="stat-label">Barèmes</div>
         </div>
     </div>
+
+    <div class="stat-card">
+        <div class="stat-icon tone-green">
+            <i class="bi bi-cash-coin"></i>
+        </div>
+        <div>
+            <div class="stat-value"><?= number_format((float) ($total_gains ?? 0), 0, ',', ' ') ?> Ar</div>
+            <div class="stat-label">Gains totaux</div>
+        </div>
+    </div>
 </div>
-<h2>Statistiques</h2>
-    <h1>Total des gains : <?= $total_gains ?> Ar</h1>
 
-    <h1> Total des gains par type d'operation : </h1>
-    <ul>
-        <?php foreach ($gains_par_type as $gain) : ?>
-            <li><?= $gain['type_nom'] ?> : <?= $gain['total_gains'] ?> Ar</li>
-        <?php endforeach; ?>
-    </ul>
+<div class="page-header" style="margin-top:8px;">
+    <div>
+        <h2 style="margin-bottom:0;">Répartition des gains</h2>
+        <p class="page-description">Détail des frais perçus par type d'opération et par opérateur.</p>
+    </div>
+</div>
 
-    <h1> Total Gain par operateur : </h1>
-    <ul>
-        <?php foreach ($gains_par_operateur as $gain) : ?>
-            <li><?= $gain['operateur_nom'] ?> : <?= $gain['total_gains'] ?> Ar</li>
-        <?php endforeach; ?>
-    </ul>
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px; margin-bottom:24px;">
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="bi bi-diagram-3"></i> Gains par type d'opération</h3>
+        </div>
+        <?php if (empty($gains_par_type)) : ?>
+            <div class="empty-state">
+                <i class="bi bi-bar-chart"></i>
+                <strong>Aucune donnée</strong>
+                <span>Aucun gain enregistré pour le moment.</span>
+            </div>
+        <?php else : ?>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Type d'opération</th>
+                            <th>Opérations</th>
+                            <th>Gains</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($gains_par_type as $gain) : ?>
+                            <tr>
+                                <td><span class="pill"><?= esc($gain['type_nom']) ?></span></td>
+                                <td><?= (int) $gain['nombre_operations'] ?></td>
+                                <td class="money positive"><?= number_format((float) $gain['total_gains'], 0, ',', ' ') ?> Ar</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h3><i class="bi bi-building"></i> Gains par opérateur</h3>
+        </div>
+        <?php if (empty($gains_par_operateur)) : ?>
+            <div class="empty-state">
+                <i class="bi bi-bar-chart"></i>
+                <strong>Aucune donnée</strong>
+                <span>Aucun gain enregistré pour le moment.</span>
+            </div>
+        <?php else : ?>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Opérateur</th>
+                            <th>Opérations</th>
+                            <th>Gains</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($gains_par_operateur as $gain) : ?>
+                            <tr>
+                                <td><span class="pill pill-muted"><?= esc($gain['operateur_nom']) ?></span></td>
+                                <td><?= (int) $gain['nombre_operations'] ?></td>
+                                <td class="money positive"><?= number_format((float) $gain['total_gains'], 0, ',', ' ') ?> Ar</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+</div>
 
 <div class="card-header" style="padding-left:0; border-bottom:none;">
     <h2>Accès rapide</h2>
