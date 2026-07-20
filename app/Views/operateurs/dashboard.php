@@ -54,6 +54,22 @@
         </div>
     </div>
 </div>
+<h2>Statistiques</h2>
+    <h1>Total des gains : <?= $total_gains ?> Ar</h1>
+
+    <h1> Total des gains par type d'operation : </h1>
+    <ul>
+        <?php foreach ($gains_par_type as $gain) : ?>
+            <li><?= $gain['type_nom'] ?> : <?= $gain['total_gains'] ?> Ar</li>
+        <?php endforeach; ?>
+    </ul>
+
+    <h1> Total Gain par operateur : </h1>
+    <ul>
+        <?php foreach ($gains_par_operateur as $gain) : ?>
+            <li><?= $gain['operateur_nom'] ?> : <?= $gain['total_gains'] ?> Ar</li>
+        <?php endforeach; ?>
+    </ul>
 
 <div class="card-header" style="padding-left:0; border-bottom:none;">
     <h2>Accès rapide</h2>

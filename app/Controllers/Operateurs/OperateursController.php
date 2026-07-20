@@ -16,6 +16,7 @@ class OperateursController extends BaseController
 {
     public function dashboard()
     {
+        $gainController = new GainController();
         $stats = [
             'operateurs' => (new OperateursModel())->countAllResults(),
             'prefixes' => (new PrefixesModel())->countAllResults(),
@@ -24,8 +25,9 @@ class OperateursController extends BaseController
         ];
 
         $situationClients = $this->getSituationComptesClients();
+        $gains = $gainController->getGain();
 
-        return view('operateurs/dashboard', array_merge(['stats' => $stats], $situationClients));
+        return view('operateurs/dashboard', array_merge(['stats' => $stats], $situationClients, $gains));
     }
 
     public function index()
