@@ -190,6 +190,8 @@ class TransactionController extends BaseController
             return false;
         }
 
+        $nombreDestinataires = count($destinataires);
+
         $clientsDestinataires = [];
         $operateurDestinataire = null;
 
@@ -218,6 +220,17 @@ class TransactionController extends BaseController
                 return false;
             }
 
+            if (
+                $nombreDestinataires > 1 &&
+                $operateurDest["id"] != $operateur["id"]
+            ) {
+                session()->setFlashdata(
+                    "error",
+                    "Avec plusieurs destinataires, ils doivent avoir le même opérateur que vous",
+                );
+                return false;
+            }
+
             if ($operateurDestinataire == null) {
                 $operateurDestinataire = $operateurDest;
             }
@@ -233,16 +246,12 @@ class TransactionController extends BaseController
             $clientsDestinataires[] = $clientDestinataire;
         }
 
-        $nombreDestinataires = count($clientsDestinataires);
+        $montantParDestinataire = floor($montant / $nombreDestinataires);
 
         $commission = 0;
         $frais = 0;
 
-        // Montant réel envoyé à chaque destinataire
-        $montantParDestinataire = floor($montant / $nombreDestinataires);
-
         if ($operateur["id"] != $operateurDestinataire["id"]) {
-            // Autre opérateur : commission sur chaque part
             $commission =
                 ($montantParDestinataire *
                     $operateurDestinataire["commission"]) /
@@ -252,7 +261,6 @@ class TransactionController extends BaseController
                 $frais = $commission * $nombreDestinataires;
             }
         } else {
-            // Même opérateur : chercher le barème par destinataire
             $bareme = $this->baremesModel->getFrais(
                 $operation["id"],
                 $montantParDestinataire,
@@ -265,7 +273,6 @@ class TransactionController extends BaseController
         }
 
         $total = $montant + $frais;
-        $montantTotalParDestinataire = floor($total / $nombreDestinataires);
 
         $solde = $this->operationModel->getSoldeClient($client->id);
 
@@ -275,13 +282,20 @@ class TransactionController extends BaseController
             return false;
         }
 
+        $montantEnvoyeParDestinataire = floor($total / $nombreDestinataires);
+
         foreach ($clientsDestinataires as $clientDestinataire) {
             $this->operationModel->insert([
                 "client_id" => $client->id,
+
                 "type_operation_id" => $operation["id"],
+
                 "client_destinataire" => $clientDestinataire->id,
-                "montant" => $montantTotalParDestinataire,
+
+                "montant" => $montantEnvoyeParDestinataire,
+
                 "frais" => $frais / $nombreDestinataires,
+
                 "operateur_id" => $operateur["id"],
             ]);
         }
