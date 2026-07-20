@@ -47,23 +47,33 @@
             - code secret
             - solde
       * [ ] Modèle
-        * [ ] ClientModel
+        * [X] ClientModel
       * [X] HTML
         * [X] input telephone
         * [X] input code secret
       * [ ] CSS / Bootstrap
       * [ ] Intégration php
         * [ ] Règle d'authentification
-          * [ ] vérification du numéro de téléphone et du code secret
+          * [X] vérification du numéro de téléphone et du code secret
         * [ ] Validation du formulaire
           * [X] Code serveur
             * [X] Format de numéro de téléphone à Madagascar
             * [X] Code secret 4 chiffres
           * [ ] Ajax (javascript)
           * [X] HTML
-    * [ ] Operation :
-      * [ ] Solde
-      * [ ] Depot
+    * [X] Operation :
+      * [X] Solde
+        * [X] fonction getSoldeClient
+      * [X] Depot
+        * [X] fonction faireDepot
+          * [X] enregistrement d une ligne d operations 
       * [ ] Retrait
-      * [ ] Transfert
-      * [ ] Historique
+        * [X] fonction faireRetrait
+          * [X] verification du solde
+          * [X] enregistrement d une ligne d operations
+      * [X] Transfert
+        * [X] fonction faireTransfert
+          * [X] verification du solde
+          * [X] verification operateur emetteur et destinataire
+          * [X] enregistrement d une ligne d operations
+    * [ ] Historique

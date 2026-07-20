@@ -5,12 +5,22 @@ namespace App\Controllers\Operateurs;
 use App\Controllers\BaseController;
 
 use App\Models\Operateurs\OperateursModel;
+use App\Models\Operateurs\PrefixesModel;
+use App\Models\Operateurs\TypesOperationModel;
+use App\Models\Operateurs\BaremesModel;
 
 class OperateursController extends BaseController
 {
     public function dashboard()
     {
-        return view('operateurs/dashboard');
+        $stats = [
+            'operateurs' => (new OperateursModel())->countAllResults(),
+            'prefixes' => (new PrefixesModel())->countAllResults(),
+            'types_operation' => (new TypesOperationModel())->countAllResults(),
+            'baremes' => (new BaremesModel())->countAllResults(),
+        ];
+
+        return view('operateurs/dashboard', ['stats' => $stats]);
     }
 
     public function index()

@@ -62,8 +62,11 @@ class ClientController extends BaseController
             return redirect()->to("/clients");
         }
 
+        $client = session()->get("client");
+
         return view("clients/dashboard", [
-            "client" => session()->get("client"),
+            "client" => $client,
+            "solde" => $this->operationModel->getSoldeClient($client["id"]),
         ]);
     }
 

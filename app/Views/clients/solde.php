@@ -1,79 +1,46 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Solde du compte</title>
+<?= $this->extend('layouts/main') ?>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 30px;
-            background: #f5f5f5;
-        }
+<?= $this->section('title') ?>Mon solde<?= $this->endSection() ?>
 
-        .card {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            width: 400px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
+<?= $this->section('content') ?>
 
-        h1 {
-            color: #333;
-        }
+<a href="<?= site_url('clients/dashboard') ?>" class="back-link">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Retour au tableau de bord
+</a>
 
-        .solde {
-            font-size: 30px;
-            font-weight: bold;
-            color: green;
-            margin: 20px 0;
-        }
-
-        a {
-            text-decoration: none;
-            background: #007bff;
-            color: white;
-            padding: 10px 15px;
-            border-radius: 5px;
-        }
-    </style>
-</head>
-
-<body>
-
-<div class="card">
-
-    <h1>Mon compte</h1>
-
-    <p>
-        <strong>Nom :</strong>
-        <?= esc($client->nom) ?>
-    </p>
-
-    <p>
-        <strong>Téléphone :</strong>
-        <?= esc($client->telephone) ?>
-    </p>
-
-    <p>
-        <strong>Identifiant :</strong>
-        <?= esc($client->id) ?>
-    </p>
-
-    <hr>
-
-    <h2>Solde disponible</h2>
-
-    <div class="solde">
-        <?= number_format($solde, 0, ',', ' ') ?> Ar
+<div class="page-header">
+    <div>
+        <h1>Mon compte</h1>
+        <p class="page-description">Détails de votre compte et solde disponible.</p>
     </div>
-
-    <a href="<?= site_url('clients/dashboard') ?>">
-        Retour au tableau de bord
-    </a>
-
 </div>
 
-</body>
-</html>
+<div class="balance-card">
+    <div class="balance-label">Solde disponible</div>
+    <div class="balance-value"><?= number_format((float) $solde, 0, ',', ' ') ?> Ar</div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h2>Informations personnelles</h2>
+    </div>
+    <div class="card-body">
+        <div class="info-list">
+            <div class="info-row">
+                <span class="label">Nom</span>
+                <span class="value"><?= esc($client->nom) ?></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Téléphone</span>
+                <span class="value"><?= esc($client->telephone) ?></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Identifiant</span>
+                <span class="value">#<?= esc($client->id) ?></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?= $this->endSection() ?>
