@@ -16,6 +16,8 @@ class OperateursController extends BaseController
 {
     public function dashboard()
     {
+        $operateur_id = 1;
+
         $gainController = new GainController();
         $stats = [
             "operateurs" => new OperateursModel()->countAllResults(),
@@ -25,12 +27,17 @@ class OperateursController extends BaseController
         ];
 
         $situationClients = $this->getSituationComptesClients();
-        $gains = $gainController->getGain();
+        $gains = $gainController->getGain($operateur_id);
 
-        return view(
-            "operateurs/dashboard",
-            array_merge(["stats" => $stats], $situationClients, $gains),
-        );
+        $montantsParOperateur = $this->getMontantsAEnvoyerParOperateur($operateur_id);
+
+
+        return view('operateurs/dashboard', array_merge(
+            ['stats' => $stats],
+            $situationClients,
+            $gains,
+            ['montants_par_operateur' => $montantsParOperateur]
+        ));
     }
 
     public function index()
@@ -83,5 +90,13 @@ class OperateursController extends BaseController
             "clients" => $clients,
             "total_solde_clients" => $totalSoldeGlobal,
         ];
+    }
+
+    public function getMontantsAEnvoyerParOperateur($monOperateurId)
+    {
+        $operationsModel = new OperationsModel();
+        $montantsParOperateur = $operationsModel->getMontantsAEnvoyerParOperateur($monOperateurId);
+
+        return $montantsParOperateur;
     }
 }

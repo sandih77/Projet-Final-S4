@@ -22,44 +22,146 @@ class OperationsModel extends Model
         "frais",
     ];
 
-    public function getGainTotal()
+    public function getGainTotal($operateur_id = null)
     {
-        $result = $this->select('SUM(frais) as total_gains')
-            ->first();
+        if ($operateur_id !== null) {
+            $result = $this->select('SUM(frais) as total_gains')
+                ->where('operateur_id', $operateur_id)
+                ->first();
+            return $result['total_gains'] ?? 0;
+        }
+
+        $result = $this->select('SUM(frais) as total_gains')->first();
         return $result['total_gains'] ?? 0;
     }
 
-    public function getGainParTypeOperation($operateur_id = null)
+    public function getGainAutreOperateur($operateur_id)
     {
-        $builder = $this->select('types_operation.nom as type_nom, 
-                                  SUM(operations.frais) as total_gains, 
-                                  COUNT(operations.id) as nombre_operations')
-            ->join('types_operation', 'types_operation.id = operations.type_operation_id')
-            ->groupBy('operations.type_operation_id');
+        $listOperations  = $this->findAll();
+        $operateursModel = new \App\Models\Operateurs\OperateursModel();
+        $clientModel     = new \App\Models\Clients\ClientModel();
 
-        if ($operateur_id !== null) {
-            $builder->where('operations.operateur_id', $operateur_id);
+        $listGainAutreOperateur = [];
+
+        foreach ($listOperations as $operation) {
+
+            if (!empty($operation['client_destinataire'])) {
+
+                $destinataire = $clientModel->find($operation['client_destinataire']);
+
+                if ($destinataire && !empty($destinataire->telephone)) {
+
+                    $operateur = $operateursModel->getOperateurByTelephone($destinataire->telephone);
+
+                    if ($operateur) {
+                        $operateurId = is_array($operateur) ? $operateur['id'] : $operateur->id;
+
+                        if ($operateurId != $operateur_id) {
+
+                            $pourcentage = is_array($operateur)
+                                ? ($operateur['commission'] ?? 0)
+                                : ($operateur->commission ?? 0);
+
+                            $commission = $operation['frais'] * ($pourcentage / 100);
+
+                            if (!isset($listGainAutreOperateur[$operateurId])) {
+                                $listGainAutreOperateur[$operateurId] = 0;
+                            }
+                            $listGainAutreOperateur[$operateurId] += $commission;
+                        }
+                    }
+                }
+            }
         }
 
-        return $builder->findAll();
+        return $listGainAutreOperateur;
     }
 
-    public function getGainParOperateur($type_operation_id = null)
+    public function getMontantsAEnvoyerParOperateur($monOperateurId)
     {
-        $builder = $this->select('operateur.nom as operateur_nom, 
-                                  SUM(operations.frais) as total_gains, 
-                                  COUNT(operations.id) as nombre_operations')
-            ->join('operateur', 'operateur.id = operations.operateur_id')
-            ->groupBy('operations.operateur_id');
+        $listOperations  = $this->findAll();
+        $operateursModel = new \App\Models\Operateurs\OperateursModel();
+        $clientModel     = new \App\Models\Clients\ClientModel();
 
-        if ($type_operation_id !== null) {
-            $builder->where('operations.type_operation_id', $type_operation_id);
+        $situation = [];
+
+        foreach ($listOperations as $operation) {
+            if (!empty($operation['client_destinataire'])) {
+                $destinataire = $clientModel->find($operation['client_destinataire']);
+
+                if ($destinataire && !empty($destinataire->telephone)) {
+                    $operateur = $operateursModel->getOperateurByTelephone($destinataire->telephone);
+
+                    if ($operateur) {
+                        $operateurId = is_array($operateur) ? $operateur['id'] : $operateur->id;
+
+                        if ($operateurId != $monOperateurId) {
+                            $pourcentage = is_array($operateur) 
+                                ? ($operateur['commission'] ?? 0) 
+                                : ($operateur->commission ?? 0);
+
+                            $montantTransfert = $operation['montant'];
+                            $commission       = $operation['frais'] * ($pourcentage / 100);
+
+                            if (!isset($situation[$operateurId])) {
+                                $situation[$operateurId] = [
+                                    'nom'               => is_array($operateur) ? $operateur['nom'] : $operateur->nom,
+                                    'total_transferts'  => 0,
+                                    'total_commissions' => 0,
+                                    'total_a_envoyer'   => 0
+                                ];
+                            }
+
+                            $situation[$operateurId]['total_transferts']  += $montantTransfert;
+                            $situation[$operateurId]['total_commissions'] += $commission;
+                            $situation[$operateurId]['total_a_envoyer']   += ($montantTransfert + $commission);
+                        }
+                    }
+                }
+            }
         }
 
-        return $builder->findAll();
+        return $situation;
     }
 
-    
+
+
+    // public function getGainParOperateur($operateur_id = null)
+    // {
+    //     $builder = $this->select('types_operation.nom as type_nom, 
+    //                               SUM(operations.frais) as total_gains, 
+    //                               COUNT(operations.id) as nombre_operations')
+    //         ->join('types_operation', 'types_operation.id = operations.type_operation_id')
+    //         ->groupBy('operations.type_operation_id');
+
+    //     if ($operateur_id !== null) {
+    //         $builder->where('operations.operateur_id', $operateur_id);
+    //     }
+
+    //     return $builder->findAll();
+    // }
+
+    // public function getGainParTypeOperation($type_operation_id = null)
+    // {
+    //     $builder = $this->select('operateur.nom as operateur_nom, 
+    //                               SUM(operations.frais) as total_gains, 
+    //                               COUNT(operations.id) as nombre_operations')
+    //         ->join('operateur', 'operateur.id = operations.operateur_id')
+    //         ->groupBy('operations.operateur_id');
+
+    //     if ($type_operation_id !== null) {
+    //         $builder->where('operations.type_operation_id', $type_operation_id);
+    //     }
+
+    //     return $builder->findAll();
+    // }
+
+
+
+
+
+
+
 
     public function getSoldeClient($clientId)
     {
@@ -70,12 +172,12 @@ class OperationsModel extends Model
             ->table("operations")
             ->selectSum("montant", "total")
             ->groupStart()
-                ->where("client_id", $clientId)
-                ->where("type_operation_id", 1) // dépôt
+            ->where("client_id", $clientId)
+            ->where("type_operation_id", 1) // dépôt
             ->groupEnd()
             ->orGroupStart()
-                ->where("client_destinataire", $clientId)
-                ->where("type_operation_id", 3) // transfert reçu
+            ->where("client_destinataire", $clientId)
+            ->where("type_operation_id", 3) // transfert reçu
             ->groupEnd()
             ->get()
             ->getRow();
@@ -89,8 +191,8 @@ class OperationsModel extends Model
             ->table("operations")
             ->select("SUM(montant + frais) AS total")
             ->groupStart()
-                ->where("client_id", $clientId)
-                ->whereIn("type_operation_id", [2, 3])
+            ->where("client_id", $clientId)
+            ->whereIn("type_operation_id", [2, 3])
             ->groupEnd()
             ->get()
             ->getRow();
@@ -142,18 +244,18 @@ class OperationsModel extends Model
             ->table("operations")
             ->select(
                 "operations.id, operations.montant, operations.frais, " .
-                "operations.date_operation, operations.client_id, operations.client_destinataire, " .
-                "types_operation.nom AS type_operation_nom, " .
-                "operateur.nom AS operateur_nom, " .
-                "dest.nom AS destinataire_nom, " .
-                "dest.telephone AS destinataire_telephone",
+                    "operations.date_operation, operations.client_id, operations.client_destinataire, " .
+                    "types_operation.nom AS type_operation_nom, " .
+                    "operateur.nom AS operateur_nom, " .
+                    "dest.nom AS destinataire_nom, " .
+                    "dest.telephone AS destinataire_telephone",
             )
             ->join("types_operation", "types_operation.id = operations.type_operation_id", "left")
             ->join("operateur", "operateur.id = operations.operateur_id", "left")
             ->join("clients AS dest", "dest.id = operations.client_destinataire", "left")
             ->groupStart()
-                ->where("operations.client_id", $clientId)
-                ->orWhere("operations.client_destinataire", $clientId)
+            ->where("operations.client_id", $clientId)
+            ->orWhere("operations.client_destinataire", $clientId)
             ->groupEnd()
             ->orderBy("operations.date_operation", "DESC")
             ->get()
