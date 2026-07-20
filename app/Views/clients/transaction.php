@@ -1,8 +1,8 @@
-<?= $this->extend('layouts/main') ?>
+<?= $this->extend("layouts/main") ?>
 
-<?= $this->section('title') ?>Transaction<?= $this->endSection() ?>
+<?= $this->section("title") ?>Transaction<?= $this->endSection() ?>
 
-<?= $this->section('content') ?>
+<?= $this->section("content") ?>
 
 <a href="<?= site_url("clients/dashboard") ?>" class="back-link">
     <i class="bi bi-arrow-left"></i>
@@ -16,20 +16,22 @@
     </div>
 </div>
 
-<?= $this->include('partials/alerts') ?>
+<?= $this->include("partials/alerts") ?>
 
 <div class="card card-form">
     <div class="card-body">
-        <form action="<?= site_url("clients/transaction/validate") ?>" method="post" class="form-grid">
+        <form action="<?= site_url(
+            "clients/transaction/validate",
+        ) ?>" method="post" class="form-grid">
 
             <div class="form-group">
                 <label for="type_operation">Type d'opération</label>
                 <select id="type_operation" name="type_operation" required>
                     <option value="">-- Sélectionnez un type --</option>
 
-                    <?php foreach ($typesOperations as $typeOperation) : ?>
-                        <option value="<?= $typeOperation['id'] ?>">
-                            <?= esc($typeOperation['nom']) ?>
+                    <?php foreach ($typesOperations as $typeOperation): ?>
+                        <option value="<?= $typeOperation["id"] ?>">
+                            <?= esc($typeOperation["nom"]) ?>
                         </option>
                     <?php endforeach; ?>
 
@@ -38,13 +40,27 @@
 
             <div class="form-group" id="destinataire_div" style="display:none;">
                 <label for="destinataire">Téléphone du destinataire</label>
+
                 <input
                     type="tel"
                     id="destinataire"
-                    name="destinataire"
+                    name="destinataire[]"
                     placeholder="0341234567"
                     pattern="^(032|033|034|037|038)[0-9]{7}$"
+                    minlength="10"
+                    maxlength="10"
                 >
+
+                <div id="destinataires_container"></div>
+
+                <button
+                    type="button"
+                    id="ajouter_destinataire"
+                    class="btn btn-secondary"
+                    style="margin-top:10px;"
+                >
+                    + Ajouter destinataire
+                </button>
             </div>
 
             <div class="form-group">
@@ -77,7 +93,9 @@
                     <i class="bi bi-check2-circle"></i>
                     Valider la transaction
                 </button>
-                <a href="<?= site_url("clients/dashboard") ?>" class="btn btn-secondary">
+                <a href="<?= site_url(
+                    "clients/dashboard",
+                ) ?>" class="btn btn-secondary">
                     Annuler
                 </a>
             </div>
@@ -103,6 +121,51 @@
         }
 
     });
+    const ajouterDestinataireBtn = document.getElementById("ajouter_destinataire");
+    const destinatairesContainer = document.getElementById("destinataires_container");
+
+    ajouterDestinataireBtn.addEventListener("click", function () {
+
+        const premierNumero = destinataireInput.value;
+
+        if (premierNumero.length < 3) {
+            alert("Saisissez d'abord le premier numéro");
+            return;
+        }
+
+        const prefixe = premierNumero.substring(0, 3);
+
+        const div = document.createElement("div");
+        div.classList.add("destinataire-item");
+
+        div.innerHTML = `
+            <label>Autre destinataire</label>
+            <input
+                type="tel"
+                name="destinataire[]"
+                value="${prefixe}"
+                placeholder="${prefixe}xxxxxxx"
+                pattern="^(032|033|034|037|038)[0-9]{7}$"
+                minlength="10"
+                maxlength="10"
+            >
+            <button type="button" class="btn btn-danger supprimer">
+                Supprimer
+            </button>
+        `;
+
+        destinatairesContainer.appendChild(div);
+
+    });
+
+    destinatairesContainer.addEventListener("click", function(e) {
+
+        if (e.target.classList.contains("supprimer")) {
+            e.target.parentElement.remove();
+        }
+    });
+
+
 </script>
 
 <?= $this->endSection() ?>
