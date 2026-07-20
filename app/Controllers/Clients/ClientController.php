@@ -6,15 +6,19 @@ use App\Models\Operateurs\OperationsModel;
 
 use App\Controllers\BaseController;
 use App\Models\Clients\ClientModel;
+use App\Models\Operateurs\OperateursModel;
 
 class ClientController extends BaseController
 {
     private ClientModel $clientModel;
+    private OperateursModel $operateursModel;
     private OperationsModel $operationModel;
+
     public function __construct()
     {
         $this->clientModel = new ClientModel();
         $this->operationModel = new OperationsModel();
+        $this->operateursModel = new OperateursModel();
     }
 
     public function index()
@@ -29,6 +33,16 @@ class ClientController extends BaseController
         if (!$this->clientModel->validate($data)) {
             return view("clients/login", [
                 "errors" => $this->clientModel->errors(),
+            ]);
+        }
+
+        $operateur = $this->operateursModel->getOperateurByTelephone(
+            $data["telephone"],
+        );
+
+        if ($operateur["id"] != 1) {
+            return view("clients/login", [
+                "error" => "Opérateur non autorisé",
             ]);
         }
 

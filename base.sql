@@ -2,7 +2,8 @@ sqlite3 writable/db/mobileMoney.db
 
 CREATE TABLE operateur (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nom TEXT UNIQUE NOT NULL
+    nom TEXT UNIQUE NOT NULL,
+    commission REAL NOT NULL
 );
 
 CREATE TABLE prefixes (
