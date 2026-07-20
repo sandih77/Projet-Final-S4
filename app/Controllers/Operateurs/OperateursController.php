@@ -8,18 +8,22 @@ use App\Models\Operateurs\OperateursModel;
 use App\Controllers\Operateurs\GainController;
 use App\Models\Clients\ClientModel;
 use App\Models\Operateurs\OperationsModel;
+use App\Models\Operateurs\PrefixesModel;
+use App\Models\Operateurs\TypesOperationModel;
+use App\Models\Operateurs\BaremesModel;
 
 class OperateursController extends BaseController
 {
     public function dashboard()
     {
-        $gainController = new GainController();
-        $data = $gainController->getGain();
+        $stats = [
+            'operateurs' => (new OperateursModel())->countAllResults(),
+            'prefixes' => (new PrefixesModel())->countAllResults(),
+            'types_operation' => (new TypesOperationModel())->countAllResults(),
+            'baremes' => (new BaremesModel())->countAllResults(),
+        ];
 
-        $situationClients = $this->getSituationComptesClients();
-        $data = array_merge($data, $situationClients);
-        
-        return view('operateurs/dashboard', $data);
+        return view('operateurs/dashboard', ['stats' => $stats]);
     }
 
     public function index()

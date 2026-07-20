@@ -1,30 +1,38 @@
-<html>
-<head>
-    <title>Login</title>
-</head>
+<?= $this->extend('layouts/auth') ?>
 
-<body>
-    <h1>Login</h1>
+<?= $this->section('title') ?>Connexion<?= $this->endSection() ?>
 
-    <?php if (isset($errors)): ?>
-        <div style="color:red;">
-            <?php foreach ($errors as $error): ?>
+<?= $this->section('content') ?>
+
+<h1>Bienvenue</h1>
+<p class="auth-subtitle">Connectez-vous avec votre numéro de téléphone et votre code secret.</p>
+
+<?= $this->include('partials/alerts') ?>
+
+<?php if (isset($errors)) : ?>
+    <div class="alert alert-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+            <?php foreach ($errors as $error) : ?>
                 <p><?= esc($error) ?></p>
             <?php endforeach; ?>
         </div>
-    <?php endif; ?>
+    </div>
+<?php endif; ?>
 
-    <?php if (isset($error)): ?>
-        <div style="color:red;">
-            <p><?= esc($error) ?></p>
-        </div>
-    <?php endif; ?>
+<?php if (isset($error)) : ?>
+    <div class="alert alert-error">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p><?= esc($error) ?></p>
+    </div>
+<?php endif; ?>
 
-    <form action="<?= site_url("clients/login") ?>" method="post">
+<form action="<?= site_url("clients/login") ?>" method="post" class="form-grid">
 
-        <?= csrf_field() ?>
+    <?= csrf_field() ?>
 
-        <label for="telephone">Téléphone:</label>
+    <div class="form-group">
+        <label for="telephone">Téléphone</label>
         <input
             type="tel"
             id="telephone"
@@ -36,10 +44,10 @@
             value="<?= old("telephone") ?>"
             required
         >
+    </div>
 
-        <br><br>
-
-        <label for="code_secret">Code secret:</label>
+    <div class="form-group">
+        <label for="code_secret">Code secret</label>
         <input
             type="password"
             id="code_secret"
@@ -50,14 +58,14 @@
             inputmode="numeric"
             required
         >
+    </div>
 
-        <br><br>
+    <button type="submit" class="btn btn-primary btn-block">
+        Se connecter
+    </button>
 
-        <button type="submit">
-            Se connecter
-        </button>
+</form>
 
-    </form>
+<p class="auth-footer-note">MoneyFlow &middot; Votre argent, partout, en toute sécurité.</p>
 
-</body>
-</html>
+<?= $this->endSection() ?>

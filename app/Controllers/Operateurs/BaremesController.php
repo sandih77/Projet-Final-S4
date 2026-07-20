@@ -12,7 +12,17 @@ class BaremesController extends BaseController
     public function index()
     {
         $model = new BaremesModel();
-        $data['baremes'] = $model->findAll();
+        $baremes = $model->findAll();
+
+        $operateurMap = array_column((new OperateursModel())->findAll(), 'nom', 'id');
+        $typeMap = array_column((new TypesOperationModel())->findAll(), 'nom', 'id');
+
+        foreach ($baremes as &$bareme) {
+            $bareme['operateur_nom'] = $operateurMap[$bareme['operateur_id']] ?? '—';
+            $bareme['type_operation_nom'] = $typeMap[$bareme['type_operation_id']] ?? '—';
+        }
+
+        $data['baremes'] = $baremes;
         return view('operateurs/baremes/list', $data);
     }
 

@@ -1,5 +1,8 @@
 <?php
+
 namespace App\Controllers\Clients;
+
+use App\Models\Operateurs\OperationsModel;
 
 use App\Controllers\BaseController;
 use App\Models\Clients\ClientModel;
@@ -7,9 +10,11 @@ use App\Models\Clients\ClientModel;
 class ClientController extends BaseController
 {
     private ClientModel $clientModel;
+    private OperationsModel $operationModel;
     public function __construct()
     {
         $this->clientModel = new ClientModel();
+        $this->operationModel = new OperationsModel();
     }
 
     public function index()
@@ -57,8 +62,11 @@ class ClientController extends BaseController
             return redirect()->to("/clients");
         }
 
+        $client = session()->get("client");
+
         return view("clients/dashboard", [
-            "client" => session()->get("client"),
+            "client" => $client,
+            "solde" => $this->operationModel->getSoldeClient($client["id"]),
         ]);
     }
 
@@ -68,5 +76,20 @@ class ClientController extends BaseController
         return redirect()->to("/clients");
     }
 
+    public function solde($id)
+    {
+        $client = $this->clientModel->find($id);
+
+        if (!$client) {
+            return redirect()->back()->with("error", "Client introuvable");
+        }
+
+        $solde = $this->operationModel->getSoldeClient($id);
+
+        return view("clients/solde", [
+            "client" => $client,
+            "solde" => $solde,
+        ]);
+    }
 }
 ?>
