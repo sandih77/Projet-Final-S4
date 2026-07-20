@@ -4,14 +4,14 @@
 </head>
 <body>
 
-    <h1>Bienvenue <?= esc($client->nom); ?></h1>
+    <h1>Bienvenue <?= esc($client['nom']); ?></h1>
 
-    <p>Téléphone : <?= esc($client->telephone); ?></p>
+    <p>Téléphone : <?= esc($client['telephone']); ?></p>
+
+    <p>Id : <?= esc($client['id']); ?></p>
 
     <ul>
-        <li><a href="<?= site_url('clients/depot')?>">Faire un dépôt</a></li>
-        <li><a href="<?= site_url('clients/retrait')?>">Faire un retrait</a></li>
-        <li><a href="<?= site_url('clients/transfert')?>">Faire un transfert</a></li>
+        <li><a href="<?= site_url('clients/transaction')?>">Faire une transaction</a></li>
         <li><a href="<?= site_url('clients/logout')?>">Se déconnecter</a></li>
     </ul>
 
