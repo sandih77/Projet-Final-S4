@@ -91,7 +91,7 @@
       * [X] Depot
         * [X] fonction faireDepot
           * [X] enregistrement d une ligne d operations
-      * [ ] Retrait
+      * [X] Retrait
         * [X] fonction faireRetrait
           * [X] verification du solde
           * [X] enregistrement d une ligne d operations
@@ -100,7 +100,7 @@
           * [X] verification du solde
           * [X] verification operateur emetteur et destinataire
           * [X] enregistrement d une ligne d operations
-    * [ ] Historique
+    * [X] Historique
 * [ ] V2
   * [ ] Operateur : Finiavana - Sandih
     * [X] Configuration des prefixes des autres operateur - Finiavana (deja present dans v1) : 1 min
@@ -125,6 +125,6 @@
         * [X] OperateursController : 5 min
       * [X] Vues :
         * [X] dashboard : 5 min
-  * [ ] Client
-    * [ ] Fonctionnalite : ajouter frais de retrait(meme operateur) - Sandih
-    * [ ] Envoye multiple
+  * [X] Client
+    * [X] Fonctionnalite : ajouter frais de retrait(meme operateur) - Sandih
+    * [X] Envoye multiple - Sandih
