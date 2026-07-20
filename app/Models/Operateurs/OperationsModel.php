@@ -236,35 +236,5 @@ class OperationsModel extends Model
         return $bareme ? $bareme->frais : 0;
     }
 
-    public function getSoldeClientSansFrais($clientId)
-    {
-
-        $recu = $this->db
-            ->table("operations")
-            ->selectSum("montant", "total")
-            ->groupStart()
-            ->where("client_id", $clientId)
-            ->where("type_operation_id", 1)
-            ->groupEnd()
-            ->orGroupStart()
-            ->where("client_destinataire", $clientId)
-            ->where("type_operation_id", 3)
-            ->groupEnd()
-            ->get()
-            ->getRow();
-
-
-        $sortie = $this->db
-            ->table("operations")
-            ->selectSum("montant", "total")
-            ->where("client_id", $clientId)
-            ->whereIn("type_operation_id", [2, 3])
-            ->get()
-            ->getRow();
-
-        $totalRecu   = $recu->total ?? 0;
-        $totalSortie = $sortie->total ?? 0;
-
-        return $totalRecu - $totalSortie;
-    }
+    
 }

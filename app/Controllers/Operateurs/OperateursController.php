@@ -93,7 +93,7 @@ class OperateursController extends BaseController
             $operateurId = is_array($operateur) ? ($operateur['id'] ?? null) : ($operateur->id ?? null);
 
             if ($operateurId == $monOperateurId) {
-                $solde         = $operationsModel->getSoldeClientSansFrais($client->id);
+                $solde         = $operationsModel->getSoldeClient($client->id);
                 $client->solde = $solde;
 
                 $nosClients[]      = $client;
