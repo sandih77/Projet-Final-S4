@@ -61,6 +61,8 @@
                 >
                     + Ajouter destinataire
                 </button>
+
+                <p class="form-hint" id="operateur_info" style="display:none; margin-top:10px;"></p>
             </div>
 
             <div class="form-group">
@@ -75,7 +77,8 @@
             </div>
 
             <div class="form-group" id="frais_div" style="display:none;">
-                <label>Inclure les frais de retrait ?</label>
+                <label>Inclure également les frais de retrait ?</label>
+                <p class="form-hint">Le frais de transfert (et la commission inter-opérateur éventuelle) est toujours appliqué. Le frais de retrait, lui, est optionnel.</p>
 
                 <div class="radio-group">
                     <label>
@@ -135,6 +138,10 @@ const destinataireDiv = document.getElementById("destinataire_div");
 const destinataireInput = document.getElementById("destinataire");
 const fraisDiv = document.getElementById("frais_div");
 
+const ajouterDestinataireBtn = document.getElementById("ajouter_destinataire");
+const destinatairesContainer = document.getElementById("destinataires_container");
+const operateurInfo = document.getElementById("operateur_info");
+
 typeOperation.addEventListener("change", function () {
     const isTransfert = this.value === "3";
 
@@ -144,18 +151,23 @@ typeOperation.addEventListener("change", function () {
     if (!isTransfert) {
         destinataireInput.value = "";
         fraisDiv.style.display = "none";
+        operateurInfo.style.display = "none";
+        destinatairesContainer.innerHTML = "";
+        ajouterDestinataireBtn.disabled = false;
     }
 });
 
-destinataireInput.addEventListener("input", async function () {
-    if (typeOperation.value !== "3" || this.value.length !== 10) {
+async function verifierOperateurDestinataire() {
+    if (typeOperation.value !== "3" || destinataireInput.value.length !== 10) {
         fraisDiv.style.display = "none";
+        operateurInfo.style.display = "none";
+        ajouterDestinataireBtn.disabled = false;
         return;
     }
 
     try {
         const formData = new FormData();
-        formData.append("telephone", this.value);
+        formData.append("telephone", destinataireInput.value);
 
         const response = await fetch(
             "<?= site_url("clients/transaction/verifier-operateur") ?>",
@@ -168,19 +180,30 @@ destinataireInput.addEventListener("input", async function () {
         const data = await response.json();
 
         if (data.different) {
-            fraisDiv.style.display = "block";
-        } else {
+            // Autre opérateur : uniquement le frais de transfert (+ la
+            // commission) s'applique. Pas de frais de retrait optionnel,
+            // et pas de transfert multiple possible.
             fraisDiv.style.display = "none";
+            ajouterDestinataireBtn.disabled = true;
+            destinatairesContainer.innerHTML = "";
+            operateurInfo.textContent = "Destinataire chez un autre opérateur : seul le frais de transfert (+ commission) s'applique. Le transfert multiple n'est pas disponible dans ce cas.";
+            operateurInfo.style.display = "block";
+        } else {
+            // Même opérateur : frais de retrait optionnel et transfert
+            // multiple autorisés.
+            fraisDiv.style.display = "block";
+            ajouterDestinataireBtn.disabled = false;
+            operateurInfo.style.display = "none";
         }
 
     } catch (error) {
         console.error(error);
         fraisDiv.style.display = "none";
+        operateurInfo.style.display = "none";
     }
-});
+}
 
-const ajouterDestinataireBtn = document.getElementById("ajouter_destinataire");
-const destinatairesContainer = document.getElementById("destinataires_container");
+destinataireInput.addEventListener("input", verifierOperateurDestinataire);
 
 ajouterDestinataireBtn.addEventListener("click", function () {
 

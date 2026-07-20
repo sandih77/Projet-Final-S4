@@ -13,7 +13,7 @@ class GainController extends BaseController
     public function getGain($operateur_id = null){
         return [
             'total_gains'         => $this->getGainTotal($operateur_id),
-            'gains_autre_operateur' => $this->getGainAutreOperateur($operateur_id),
+            'gains_autres_operateurs_detail' => $this->getGainAutreOperateur($operateur_id),
         ];
     }
 
@@ -24,22 +24,6 @@ class GainController extends BaseController
 
         return $gainTotal;
     }
-
-    // public function getGainParTypeOperation($operateur_id = null)
-    // {
-    //     $operationsModel = new OperationsModel();
-    //     $gainParTypeOperation = $operationsModel->getGainParTypeOperation($operateur_id);
-
-    //     return $gainParTypeOperation;
-    // }
-
-    // public function getGainParOperateur($type_operation_id = null)
-    // {
-    //     $operationsModel = new OperationsModel();
-    //     $gainParOperateur = $operationsModel->getGainParOperateur($type_operation_id);
-
-    //     return $gainParOperateur;
-    // }
 
     public function getGainAutreOperateur($operateur_id)
     {
