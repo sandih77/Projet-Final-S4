@@ -23,7 +23,9 @@ CREATE TABLE baremes (
     montant_min REAL,
     montant_max REAL,
     frais REAL,
-    FOREIGN KEY(type_operation_id) REFERENCES types_operation(id)
+    operateur_id INTEGER,
+    FOREIGN KEY(type_operation_id) REFERENCES types_operation(id),
+    FOREIGN KEY(operateur_id) REFERENCES operateur(id)
 );
 
 CREATE TABLE clients (
@@ -42,7 +44,9 @@ CREATE TABLE operations (
     montant REAL,
     frais REAL,
     date_operation DATETIME DEFAULT CURRENT_TIMESTAMP,
+    operateur_id INTEGER,
     FOREIGN KEY(client_id) REFERENCES clients(id),
     FOREIGN KEY(type_operation_id) REFERENCES types_operation(id),
-    FOREIGN KEY(client_destinataire) REFERENCES clients(id)
+    FOREIGN KEY(client_destinataire) REFERENCES clients(id),
+    FOREIGN KEY(operateur_id) REFERENCES operateur(id)
 );
