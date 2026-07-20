@@ -59,6 +59,10 @@ INSERT INTO clients (nom, telephone, code_secret)
 VALUES
     ('Test', '0343434434', 1234);
 
+INSERT INTO clients (nom, telephone, code_secret)
+VALUES
+    ('Orange', '0322222222', 1234);
+
 INSERT INTO types_operation (nom)
 VALUES
     ('depot'),

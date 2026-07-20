@@ -103,47 +103,18 @@ class TransactionController extends BaseController
                     "destinataire",
                 );
 
-                $clientDestinataire = $this->clientModel->getClientByTelephone(
-                    $telephoneDestinataire,
-                );
-
-                if (!$clientDestinataire) {
-                    return redirect()
-                        ->back()
-                        ->with("error", "Destinataire introuvable");
-                }
-
-                $operateurDestinataire = $this->operateursModel->getOperateurByTelephone(
-                    $clientDestinataire->telephone,
-                );
-
-                if (!$operateurDestinataire) {
-                    return redirect()
-                        ->back()
-                        ->with("error", "Opérateur destinataire inconnu");
-                }
-
-                if ($operateur["id"] != $operateurDestinataire["id"]) {
-                    return redirect()
-                        ->back()
-                        ->with(
-                            "error",
-                            "Transfert impossible : les deux clients doivent avoir le même opérateur",
-                        );
-                }
-
                 if (
                     !$this->faireTransfert(
                         $client,
+                        $telephoneDestinataire,
                         $montant,
                         $operation,
                         $operateur,
-                        $clientDestinataire,
                     )
                 ) {
                     return redirect()
                         ->back()
-                        ->with("error", "Solde insuffisant");
+                        ->with("error", session()->getFlashdata("error"));
                 }
 
                 break;
@@ -160,7 +131,6 @@ class TransactionController extends BaseController
         return $this->operationModel->insert([
             "client_id" => $client->id,
 
-            // Correction ici
             "type_operation_id" => $operation["id"],
 
             "client_destinataire" => null,
@@ -208,11 +178,35 @@ class TransactionController extends BaseController
 
     private function faireTransfert(
         $client,
+        $telephoneDestinataire,
         $montant,
         $operation,
         $operateur,
-        $clientDestinataire,
     ) {
+        $clientDestinataire = $this->clientModel->getClientByTelephone(
+            $telephoneDestinataire,
+        );
+
+        if (!$clientDestinataire) {
+            session()->setFlashdata("error", "Destinataire introuvable");
+            return false;
+        }
+
+        $operateurDestinataire = $this->operateursModel->getOperateurByTelephone(
+            $clientDestinataire->telephone,
+        );
+
+        if (!$operateurDestinataire) {
+            session()->setFlashdata("error", "Opérateur destinataire inconnu");
+            return false;
+        }
+
+        $commission = 0;
+
+        if ($operateur["id"] != $operateurDestinataire["id"]) {
+            $commission = ($montant * $operateurDestinataire["commission"]) / 100;
+        }
+
         $solde = $this->operationModel->getSoldeClient($client->id);
 
         $bareme = $this->baremesModel->getFrais(
@@ -221,25 +215,32 @@ class TransactionController extends BaseController
             $operateur["id"],
         );
 
-        $frais = $bareme ? $bareme->frais : 0;
+        if ($operateur["id"] == $operateurDestinataire["id"]) {
+            $bareme = $this->baremesModel->getFrais(
+                $operation["id"],
+                $montant,
+                $operateur["id"],
+            );
 
+            $frais = $bareme ? $bareme->frais : 0;
+        } else {
+            $frais = $commission;
+        }
+
+        $montant = $montant + $commission;
         $total = $montant + $frais;
 
         if ($solde < $total) {
+            session()->setFlashdata("error", "Solde insuffisant");
             return false;
         }
 
         return $this->operationModel->insert([
             "client_id" => $client->id,
-
             "type_operation_id" => $operation["id"],
-
             "client_destinataire" => $clientDestinataire->id,
-
             "montant" => $montant,
-
             "frais" => $frais,
-
             "operateur_id" => $operateur["id"],
         ]);
     }

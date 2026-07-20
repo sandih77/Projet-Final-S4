@@ -44,6 +44,8 @@
                     name="destinataire"
                     placeholder="0341234567"
                     pattern="^(032|033|034|037|038)[0-9]{7}$"
+                    minlength="10"
+                    maxlength="10"
                 >
             </div>
 
