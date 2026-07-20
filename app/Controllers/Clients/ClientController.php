@@ -34,7 +34,11 @@ class ClientController extends BaseController
 
         if ($client) {
             session()->set([
-                "client" => $client,
+                "client" => [
+                    "id" => $client->id,
+                    "nom" => $client->nom,
+                    "telephone" => $client->telephone,
+                ],
                 "logged_in" => true,
             ]);
 

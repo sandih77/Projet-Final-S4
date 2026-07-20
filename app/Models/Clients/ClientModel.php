@@ -29,11 +29,6 @@ class ClientModel extends Model
         ],
     ];
 
-    public function findById($id)
-    {
-        return $this->find($id);
-    }
-
     public function findByCodeSecretAndTelephone($code_secret, $telephone)
     {
         return $this->where("code_secret", $code_secret)

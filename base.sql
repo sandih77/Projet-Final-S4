@@ -30,8 +30,7 @@ CREATE TABLE clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom TEXT,
     telephone TEXT UNIQUE,
-    code_secret INTEGER,
-    solde REAL
+    code_secret INTEGER
 );
 
 CREATE TABLE operations (
@@ -48,6 +47,6 @@ CREATE TABLE operations (
 );
 
 -- Données de test
-INSERT INTO clients (nom, telephone, code_secret, solde)
+INSERT INTO clients (nom, telephone, code_secret)
 VALUES
-    ('Sandih', '0388784291', 1234, 1000);
+    ('Sandih', '0388784291', 1234);
