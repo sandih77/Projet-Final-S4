@@ -11,4 +11,14 @@ class OperateursModel extends Model
     protected $allowedFields = [
         'nom'
     ];
+
+    public function getOperateurByTelephone($telephone)
+    {
+        $prefixe = substr($telephone, 0, 3);
+
+        return $this->select("operateur.*")
+            ->join("prefixes", "prefixes.operateur_id = operateur.id")
+            ->where("prefixes.prefixe", $prefixe)
+            ->first();
+    }
 }

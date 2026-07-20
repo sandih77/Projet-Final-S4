@@ -1,9 +1,9 @@
 * [X] Initialisation git : Sandih (5 min)
 * [X] Creation base : Sandih - Finiavana (20 min)
 * [ ] V1
-  * [ ] Operateur : Finiavana
-    * [ ] Gestion des Prefixes
-      * [ ] Base de donnees
+  * [X] Operateur : Finiavana
+    * [X] Gestion des Prefixes
+      * [X] Base de donnees
 
         * [X] Tables :
           * [X] operateur :
@@ -32,15 +32,39 @@
 
         * [X] operateurs
         * [X] prefixes
-    * [ ] Gestion des types d'operation
-    * [ ] Finance
-    * [ ] Compte client
+          [X] Gestion des types d'operation
+      * [X] Modeles :
+
+        * [X] TypesOperationModel
+      * [X] Controller :
+
+        * [X] TypesOperationController
+      * [X] Vues :
+
+        * [X] types_operation
+    * [X] Finance
+      * [X] Modeles :
+        * [X] BaremesModel
+        * [X] OperationsModel
+          * [X] Fonctions :
+            * [X] getGainTotal
+            * [X] getGainParTypeOperation
+            * [X] getGainParOperateur
+            * [X] getSoldeClient
+      * [X] Controller :
+        * [X] GainController
+        * [X] BaremesController
+      * [X] Vues :
+        * [X] baremes
+    * [X] Compte client
+      * [X] Integration dans le dashboard
+      * [X] Calcul dynamique du solde via l'historique
   * [ ] Client : Sandih
     * [ ] Login
       * [X] Base de donnees
         * [X] Tables
           * [X] Clients
-            - id 
+            - id
             - nom
             - prenom
             - téléphone
