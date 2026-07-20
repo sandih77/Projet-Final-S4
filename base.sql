@@ -1,4 +1,4 @@
-sqlite3 writable/db/mobilemoney.db
+sqlite3 writable/db/mobileMoney.db
 
 CREATE TABLE operateur (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
