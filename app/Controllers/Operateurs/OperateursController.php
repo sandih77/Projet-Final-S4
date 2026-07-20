@@ -18,19 +18,23 @@ class OperateursController extends BaseController
     {
         $operateur_id = 1;
 
+        $operateursModel = new OperateursModel();
+        $prefixesModel   = new PrefixesModel();
+        $typesModel      = new TypesOperationModel();
+        $baremesModel    = new BaremesModel();
+
         $gainController = new GainController();
+
         $stats = [
-            "operateurs" => new OperateursModel()->countAllResults(),
-            "prefixes" => new PrefixesModel()->countAllResults(),
-            "types_operation" => new TypesOperationModel()->countAllResults(),
-            "baremes" => new BaremesModel()->countAllResults(),
+            "operateurs"      => $operateursModel->countAllResults(),
+            "prefixes"        => $prefixesModel->countAllResults(),
+            "types_operation" => $typesModel->countAllResults(),
+            "baremes"         => $baremesModel->countAllResults(),
         ];
 
-        $situationClients = $this->getSituationComptesClients();
-        $gains = $gainController->getGain($operateur_id);
-
+        $situationClients     = $this->getSituationComptesClients();
+        $gains                = $gainController->getGain($operateur_id);
         $montantsParOperateur = $this->getMontantsAEnvoyerParOperateur($operateur_id);
-
 
         return view('operateurs/dashboard', array_merge(
             ['stats' => $stats],
