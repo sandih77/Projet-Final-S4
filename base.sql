@@ -1,8 +1,15 @@
 sqlite3 writable/db/mobilemoney.db
 
+CREATE TABLE operateur (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT UNIQUE NOT NULL
+);
+
 CREATE TABLE prefixes (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    prefixe TEXT UNIQUE NOT NULL
+    prefixe TEXT UNIQUE NOT NULL,
+    operateur_id INTEGER,
+    FOREIGN KEY(operateur_id) REFERENCES operateur(id)
 );
 
 CREATE TABLE types_operation (
@@ -23,18 +30,19 @@ CREATE TABLE clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom TEXT,
     telephone TEXT UNIQUE,
-    code_secret TEXT,
-    solde REAL,
+    code_secret INTEGER,
+    solde REAL
 );
 
 CREATE TABLE operations (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     client_id INTEGER,
     type_operation_id INTEGER,
-    destinataire TEXT,
+    client_destinataire INTEGER,
     montant REAL,
     frais REAL,
     date_operation DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY(client_id) REFERENCES clients(id),
-    FOREIGN KEY(type_operation_id) REFERENCES types_operation(id)
+    FOREIGN KEY(type_operation_id) REFERENCES types_operation(id),
+    FOREIGN KEY(client_destinataire) REFERENCES clients(id)
 );
