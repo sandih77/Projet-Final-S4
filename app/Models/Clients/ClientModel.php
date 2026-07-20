@@ -9,11 +9,12 @@ class ClientModel extends Model
     protected $table = "clients";
     protected $primaryKey = "id";
     protected $allowedFields = ["nom", "telephone", "code_secret"];
+    protected $returnType = 'object';
 
     protected $validationRules = [
         "telephone" =>
             'required|regex_match[/^(032|033|034|037|038)[0-9]{7}$/]',
-        "codesecret" => 'required|regex_match[/^[0-9]{4}$/]',
+        "code_secret" => 'required|regex_match[/^[0-9]{4}$/]',
     ];
 
     protected $validationMessages = [
@@ -22,16 +23,11 @@ class ClientModel extends Model
             "regex_match" =>
                 "Le numéro de téléphone doit commencer par 032, 033, 034, 037 ou 038",
         ],
-        "codesecret" => [
+        "code_secret" => [
             "required" => "Le code secret est requis",
             "regex_match" => "Le code secret doit contenir 4 chiffres",
         ],
     ];
-
-    public function findAll()
-    {
-        return $this->findAll();
-    }
 
     public function findById($id)
     {

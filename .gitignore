@@ -19,3 +19,6 @@ application/logs/*
 
 /writable/debugbar
 /writable/logs
+/writable/session
+/writable/cache
+/writable/uploads
