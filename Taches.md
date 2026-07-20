@@ -8,6 +8,21 @@
     * [ ] Compte client
   * [ ] Client : Sandih
     * [ ] Login
+      * [X] Base de donnees
+        * [X] Tables
+          * [X] Clients
+            - id 
+            - nom
+            - prenom
+            - téléphone
+            - code secret
+            - solde
+      * [ ] HTML
+        * [ ] input telephone
+        * [ ] input code secret
+      * [ ] CSS / Bootstrap
+      * [ ] Intégration php
+        * [ ] Vérification des données
     * [ ] Operation :
       * [ ] Solde
       * [ ] Depot
