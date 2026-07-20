@@ -65,11 +65,11 @@ VALUES
     ('retrait'),
     ('transfert');
 
-INSERT INTO operateur (nom)
+INSERT INTO operateur (nom, commission)
 VALUES
-    ('telma'),
-    ('orange'),
-    ('airtel');
+    ('yas', 0),
+    ('orange', 5),
+    ('airtel', 7);
 
 INSERT INTO prefixes (prefixe, operateur_id)
 VALUES
