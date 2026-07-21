@@ -40,7 +40,7 @@ class OperateursController extends BaseController
             ['stats' => $stats],
             $situationClients,
             $gains,
-            ['montants_par_operateur' => $montantsParOperateur]
+            ['montants_a_envoyer' => $montantsParOperateur]
         ));
     }
 

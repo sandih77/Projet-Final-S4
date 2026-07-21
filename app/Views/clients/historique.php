@@ -36,6 +36,7 @@
                         <th>Opérateur</th>
                         <th>Montant</th>
                         <th>Frais</th>
+                        <th>Commission</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -98,6 +99,13 @@
                             </td>
                             <td class="money">
                                 <?= number_format((float) $operation['frais'], 0, ',', ' ') ?> Ar
+                            </td>
+                            <td class="money">
+                                <?php if ((float) ($operation['commission'] ?? 0) > 0) : ?>
+                                    <?= number_format((float) $operation['commission'], 0, ',', ' ') ?> Ar
+                                <?php else : ?>
+                                    —
+                                <?php endif; ?>
                             </td>
                         </tr>
                     <?php endforeach; ?>
