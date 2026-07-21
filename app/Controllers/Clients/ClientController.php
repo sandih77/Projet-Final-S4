@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Clients;
 
+use App\Models\Epargne\EpargneModel;
 use App\Models\Operateurs\OperationsModel;
 
 use App\Controllers\BaseController;
@@ -13,12 +14,14 @@ class ClientController extends BaseController
     private ClientModel $clientModel;
     private OperateursModel $operateursModel;
     private OperationsModel $operationModel;
+    private EpargneModel $epargneModel;
 
     public function __construct()
     {
         $this->clientModel = new ClientModel();
         $this->operationModel = new OperationsModel();
         $this->operateursModel = new OperateursModel();
+        $this->epargneModel = new EpargneModel();
     }
 
     public function index()
@@ -122,6 +125,31 @@ class ClientController extends BaseController
             "client" => $clientSession,
             "historique" => $historique,
         ]);
+    }
+
+    public function epargne()
+    {
+        $clientSession = session()->get("client");
+        $valeurEpargne = $this->epargneModel->getEpargneClient(
+            $clientSession["id"],
+        );
+        return view("clients/epargne", [
+            "client" => $clientSession,
+            "valeurEpargne" => $valeurEpargne,
+        ]);
+    }
+
+    public function validerEpargne()
+    {
+        $clientSession = session()->get("client");
+        $epargneValue = $this->request->getPost("epargne");
+        $data = [
+            "telephone" => $clientSession["telephone"],
+            "nom" => $clientSession["nom"],
+            "epargne" => $epargneValue,
+        ];
+        $this->clientModel->update($clientSession["id"], $data);
+        return redirect()->to("/clients/epargne");
     }
 }
 ?>

@@ -33,7 +33,8 @@ CREATE TABLE clients (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nom TEXT,
     telephone TEXT UNIQUE,
-    code_secret INTEGER
+    code_secret INTEGER,
+    epargne INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE operations (
@@ -51,6 +52,15 @@ CREATE TABLE operations (
     FOREIGN KEY(client_destinataire) REFERENCES clients(id),
     FOREIGN KEY(operateur_id) REFERENCES operateur(id)
 );
+
+
+CREATE TABLE epargne (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_id INTEGER,
+    montant REAL NOT NULL DEFAULT 0,
+    FOREIGN KEY (client_id) REFERENCES clients(id)
+);
+
 
 -- Données de test
 INSERT INTO clients (nom, telephone, code_secret)

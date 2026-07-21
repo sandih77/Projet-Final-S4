@@ -41,6 +41,12 @@ $navItems = $isClientArea
             'label' => 'Historique',
             'icon' => 'bi-clock-history',
         ],
+        [
+            'match' => 'clients/epargne',
+            'url' => 'clients/epargne',
+            'label' => 'Epargner',
+            'icon' => 'bi-wallet2',
+        ],
     ]
     : [
         [

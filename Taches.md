@@ -128,3 +128,12 @@
   * [X] Client
     * [X] Fonctionnalite : ajouter frais de retrait(meme operateur) - Sandih
     * [X] Envoye multiple - Sandih
+
+
+Notion epargne
+Pour chaque client
+Choisir le pourcentage 
+Exemple 
+Client 1 = epargne 20%
+Quand il y a une transfert
+20% montant -> epargne

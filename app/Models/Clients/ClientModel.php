@@ -8,7 +8,7 @@ class ClientModel extends Model
 {
     protected $table = "clients";
     protected $primaryKey = "id";
-    protected $allowedFields = ["nom", "telephone", "code_secret"];
+    protected $allowedFields = ["nom", "telephone", "code_secret", "epargne"];
     protected $returnType = "object";
 
     protected $validationRules = [

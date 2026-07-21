@@ -8,6 +8,7 @@ use App\Models\Operateurs\TypesOperationModel;
 use App\Models\Operateurs\OperationsModel;
 use App\Models\Operateurs\OperateursModel;
 use App\Models\Operateurs\BaremesModel;
+use App\Models\Epargne\EpargneModel;
 
 class TransactionController extends BaseController
 {
@@ -16,6 +17,7 @@ class TransactionController extends BaseController
     private OperationsModel $operationModel;
     private OperateursModel $operateursModel;
     private BaremesModel $baremesModel;
+    private EpargneModel $epargneModel;
 
     public function __construct()
     {
@@ -24,6 +26,7 @@ class TransactionController extends BaseController
         $this->operationModel = new OperationsModel();
         $this->operateursModel = new OperateursModel();
         $this->baremesModel = new BaremesModel();
+        $this->epargneModel = new EpargneModel();
     }
 
     public function index()
@@ -181,7 +184,7 @@ class TransactionController extends BaseController
     }
 
     private function faireTransfert(
-        $client,
+        $clientDe,
         $destinataires,
         $montant,
         $operation,
@@ -262,7 +265,9 @@ class TransactionController extends BaseController
             $operateur["id"],
         );
 
-        $fraisTransfert = $baremeTransfert ? (float) $baremeTransfert->frais : 0;
+        $fraisTransfert = $baremeTransfert
+            ? (float) $baremeTransfert->frais
+            : 0;
 
         // Frais de retrait : OPTIONNEL, mais UNIQUEMENT pour un transfert
         // vers le MÊME opérateur. Vers un autre opérateur, seul le frais de
@@ -300,7 +305,7 @@ class TransactionController extends BaseController
 
         $total = $montant + $fraisTotal;
 
-        $solde = $this->operationModel->getSoldeClient($client->id);
+        $solde = $this->operationModel->getSoldeClient($clientDe->id);
 
         if ($solde < $total) {
             session()->setFlashdata("error", "Solde insuffisant");
@@ -314,8 +319,23 @@ class TransactionController extends BaseController
             // commission (le cas échéant) est due à l'opérateur du
             // destinataire. Les deux sont stockés séparément sur la même
             // opération pour garder un historique clair.
+            //
+            //
+            if ($clientDestinataire->epargne != 0) {
+                $montantEpargner =
+                    ($montantParDestinataire * $clientDestinataire->epargne) /
+                    100;
+                $montantParDestinataire =
+                    $montantParDestinataire - $montantEpargner;
+
+                $this->epargneModel->insert([
+                    "client_id" => $clientDe->id,
+                    "montant" => $montantEpargner,
+                ]);
+            }
+
             $this->operationModel->insert([
-                "client_id" => $client->id,
+                "client_id" => $clientDe->id,
 
                 "type_operation_id" => $operation["id"],
 

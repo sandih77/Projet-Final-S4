@@ -23,6 +23,11 @@ $routes->group("clients", function ($routes) {
         $routes->post("validate", [TransactionController::class, "store"]);
         $routes->post("verifier-operateur", [TransactionController::class, "verifierOperateur"]);
     });
+
+    $routes->group("epargne", function ($routes) {
+        $routes->get("/", [ClientController::class, "epargne"]);
+        $routes->post("valider", [ClientController::class, "validerEpargne"]);
+    });
 });
 
 
