@@ -8,6 +8,8 @@ use App\Models\Operateurs\TypesOperationModel;
 use App\Models\Operateurs\OperationsModel;
 use App\Models\Operateurs\OperateursModel;
 use App\Models\Operateurs\BaremesModel;
+use App\Models\Operateurs\PromotionsModel;
+
 
 class TransactionController extends BaseController
 {
@@ -16,6 +18,7 @@ class TransactionController extends BaseController
     private OperationsModel $operationModel;
     private OperateursModel $operateursModel;
     private BaremesModel $baremesModel;
+    private PromotionsModel $promotionsModel;
 
     public function __construct()
     {
@@ -24,6 +27,7 @@ class TransactionController extends BaseController
         $this->operationModel = new OperationsModel();
         $this->operateursModel = new OperateursModel();
         $this->baremesModel = new BaremesModel();
+        $this->promotionsModel = new PromotionsModel();
     }
 
     public function index()
@@ -193,7 +197,9 @@ class TransactionController extends BaseController
             return false;
         }
 
-        $nombreDestinataires = count($destinataires);
+        $nombreDestinataires = 1;
+
+        $$nombreDestinataires = count($destinataires);
 
         $clientsDestinataires = [];
         $operateurDestinataire = null;
@@ -262,7 +268,16 @@ class TransactionController extends BaseController
             $operateur["id"],
         );
 
+        $promotionMod = new PromotionsModel();
+
+        $promotion = $promotionMod->getPromotionByOperateurId(1);
+
         $fraisTransfert = $baremeTransfert ? (float) $baremeTransfert->frais : 0;
+
+        if ($promotion) {
+            $fraisTransfert = $fraisTransfert * (($promotion['pourcentage'] ? $promotion['pourcentage'] : 1) / 100);
+        }
+
 
         // Frais de retrait : OPTIONNEL, mais UNIQUEMENT pour un transfert
         // vers le MÊME opérateur. Vers un autre opérateur, seul le frais de

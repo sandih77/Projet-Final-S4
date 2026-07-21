@@ -12,6 +12,19 @@ CREATE TABLE prefixes (
     operateur_id INTEGER,
     FOREIGN KEY(operateur_id) REFERENCES operateur(id)
 );
+CREATE TABLE promotions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pourcentage REAL,
+    operateur_id INTEGER,
+    FOREIGN KEY(operateur_id) REFERENCES operateur(id)
+);
+
+INSERT INTO promotions (pourcentage, operateur_id)
+VALUES
+    (50.0,1);
+    INSERT INTO promotions (pourcentage, operateur_id)
+VALUES
+    (50.0,2);
 
 CREATE TABLE types_operation (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
