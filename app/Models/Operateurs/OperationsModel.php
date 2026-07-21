@@ -20,104 +20,117 @@ class OperationsModel extends Model
         "date_operation",
         "operateur_id",
         "frais",
+        "commission",
     ];
 
+    /**
+     * Gain total de MON opérateur : uniquement les frais de base perçus sur
+     * mes propres opérations (dépôt, retrait, transfert). La commission
+     * inter-opérateur est stockée à part et ne m'appartient jamais : elle est
+     * due à l'opérateur du destinataire (voir getGainAutreOperateur()).
+     */
     public function getGainTotal($operateur_id = null)
     {
-        $totalFrais = $this->select('SUM(frais) as total')
+        $result = $this->select('SUM(frais) as total')
             ->where('operateur_id', $operateur_id)
-            ->first()['total'] ?? 0;
+            ->first();
 
-        $gainsAutres = $this->getGainAutreOperateur($operateur_id);
-        $totalCommissionsAutres = array_sum($gainsAutres);
-
-        return $totalFrais - $totalCommissionsAutres;
+        return $result['total'] ?? 0;
     }
 
+    /**
+     * Commissions dues par MON opérateur aux AUTRES opérateurs, groupées par
+     * opérateur destinataire. Ces commissions sont désormais lues directement
+     * depuis la colonne "commission" de chaque opération (plus de recalcul).
+     */
     public function getGainAutreOperateur($operateur_id)
     {
-        $listOperations  = $this->findAll();
+        $listOperations = $this->where('operateur_id', $operateur_id)
+            ->where('commission >', 0)
+            ->findAll();
+
         $operateursModel = new \App\Models\Operateurs\OperateursModel();
         $clientModel     = new \App\Models\Clients\ClientModel();
 
         $listGainAutreOperateur = [];
 
         foreach ($listOperations as $operation) {
-
-            if (!empty($operation['client_destinataire'])) {
-
-                $destinataire = $clientModel->find($operation['client_destinataire']);
-
-                if ($destinataire && !empty($destinataire->telephone)) {
-
-                    $operateur = $operateursModel->getOperateurByTelephone($destinataire->telephone);
-
-                    if ($operateur) {
-                        $operateurId = is_array($operateur) ? $operateur['id'] : $operateur->id;
-
-                        if ($operateurId != $operateur_id) {
-
-                            $pourcentage = is_array($operateur)
-                                ? ($operateur['commission'] ?? 0)
-                                : ($operateur->commission ?? 0);
-
-                            $commission = $operation['frais'] * ($pourcentage / 100);
-
-                            if (!isset($listGainAutreOperateur[$operateurId])) {
-                                $listGainAutreOperateur[$operateurId] = 0;
-                            }
-                            $listGainAutreOperateur[$operateurId] += $commission;
-                        }
-                    }
-                }
+            if (empty($operation['client_destinataire'])) {
+                continue;
             }
+
+            $destinataire = $clientModel->find($operation['client_destinataire']);
+
+            if (!$destinataire || empty($destinataire->telephone)) {
+                continue;
+            }
+
+            $operateurDest = $operateursModel->getOperateurByTelephone($destinataire->telephone);
+
+            if (!$operateurDest) {
+                continue;
+            }
+
+            $operateurDestId = is_array($operateurDest) ? $operateurDest['id'] : $operateurDest->id;
+
+            if (!isset($listGainAutreOperateur[$operateurDestId])) {
+                $listGainAutreOperateur[$operateurDestId] = 0;
+            }
+
+            $listGainAutreOperateur[$operateurDestId] += $operation['commission'];
         }
 
         return $listGainAutreOperateur;
     }
 
+    /**
+     * Récapitulatif, par opérateur partenaire, des montants transférés et
+     * des commissions à leur reverser (lues directement depuis la colonne
+     * "commission").
+     */
     public function getMontantsAEnvoyerParOperateur($monOperateurId)
     {
-        $listOperations  = $this->findAll();
+        $listOperations = $this->where('operateur_id', $monOperateurId)
+            ->where('commission >', 0)
+            ->findAll();
+
         $operateursModel = new \App\Models\Operateurs\OperateursModel();
         $clientModel     = new \App\Models\Clients\ClientModel();
 
         $situation = [];
 
         foreach ($listOperations as $operation) {
-            if (!empty($operation['client_destinataire'])) {
-                $destinataire = $clientModel->find($operation['client_destinataire']);
-
-                if ($destinataire && !empty($destinataire->telephone)) {
-                    $operateur = $operateursModel->getOperateurByTelephone($destinataire->telephone);
-
-                    if ($operateur) {
-                        $operateurId = is_array($operateur) ? $operateur['id'] : $operateur->id;
-
-                        if ($operateurId != $monOperateurId) {
-                            $pourcentage = is_array($operateur) 
-                                ? ($operateur['commission'] ?? 0) 
-                                : ($operateur->commission ?? 0);
-
-                            $montantTransfert = $operation['montant'];
-                            $commission       = $operation['frais'] * ($pourcentage / 100);
-
-                            if (!isset($situation[$operateurId])) {
-                                $situation[$operateurId] = [
-                                    'nom'               => is_array($operateur) ? $operateur['nom'] : $operateur->nom,
-                                    'total_transferts'  => 0,
-                                    'total_commissions' => 0,
-                                    'total_a_envoyer'   => 0
-                                ];
-                            }
-
-                            $situation[$operateurId]['total_transferts']  += $montantTransfert;
-                            $situation[$operateurId]['total_commissions'] += $commission;
-                            $situation[$operateurId]['total_a_envoyer']   += ($montantTransfert + $commission);
-                        }
-                    }
-                }
+            if (empty($operation['client_destinataire'])) {
+                continue;
             }
+
+            $destinataire = $clientModel->find($operation['client_destinataire']);
+
+            if (!$destinataire || empty($destinataire->telephone)) {
+                continue;
+            }
+
+            $operateurDest = $operateursModel->getOperateurByTelephone($destinataire->telephone);
+
+            if (!$operateurDest) {
+                continue;
+            }
+
+            $operateurDestId = is_array($operateurDest) ? $operateurDest['id'] : $operateurDest->id;
+            $nomDest = is_array($operateurDest) ? $operateurDest['nom'] : $operateurDest->nom;
+
+            if (!isset($situation[$operateurDestId])) {
+                $situation[$operateurDestId] = [
+                    'nom'               => $nomDest,
+                    'total_transferts'  => 0,
+                    'total_commissions' => 0,
+                    'total_a_envoyer'   => 0,
+                ];
+            }
+
+            $situation[$operateurDestId]['total_transferts']  += $operation['montant'];
+            $situation[$operateurDestId]['total_commissions'] += $operation['commission'];
+            $situation[$operateurDestId]['total_a_envoyer']   += $operation['montant'] + $operation['commission'];
         }
 
         return $situation;
@@ -185,10 +198,10 @@ class OperationsModel extends Model
         // Argent sorti :
         // - retrait
         // - transfert envoyé
-        // + frais
+        // + frais (frais du barème) + commission (frais inter-opérateur)
         $sortie = $this->db
             ->table("operations")
-            ->select("SUM(montant) AS total")
+            ->select("SUM(montant + frais + commission) AS total")
             ->groupStart()
             ->where("client_id", $clientId)
             ->whereIn("type_operation_id", [2, 3])
@@ -242,7 +255,7 @@ class OperationsModel extends Model
         return $this->db
             ->table("operations")
             ->select(
-                "operations.id, operations.montant, operations.frais, " .
+                "operations.id, operations.montant, operations.frais, operations.commission, " .
                     "operations.date_operation, operations.client_id, operations.client_destinataire, " .
                     "types_operation.nom AS type_operation_nom, " .
                     "operateur.nom AS operateur_nom, " .
